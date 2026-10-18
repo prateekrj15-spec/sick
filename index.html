@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cozy Corner ✨ A Get-Well Space For You</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Three.js for 3D Character & Environment -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-pink: #ff8fab;
+      --soft-pink: #ffe5ec;
+      --warm-cream: #fff0f5;
+      --lavender: #e2d9f3;
+      --mint: #d8f3dc;
+      --peach: #ffd7ba;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #fff5f7 0%, #fdf2f8 25%, #f5f3ff 50%, #eff6ff 75%, #fff1f2 100%);
+      min-height: 100vh;
+      color: #4a4049;
+      overflow-x: hidden;
+    }
+
+    .font-cute {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    .font-handwriting {
+      font-family: 'Patrick Hand', cursive, sans-serif;
+    }
+
+    /* Claymorphic and soft pill styles */
+    .clay-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 28px;
+      box-shadow: 0 16px 36px -8px rgba(244, 114, 182, 0.18), 
+                  0 4px 12px rgba(0, 0, 0, 0.03),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.9);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .clay-card:hover {
+      box-shadow: 0 22px 42px -6px rgba(244, 114, 182, 0.25),
+                  0 6px 16px rgba(0, 0, 0, 0.04),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .clay-btn {
+      background: linear-gradient(135deg, #ff8fab 0%, #fb7185 100%);
+      color: white;
+      border-radius: 9999px;
+      box-shadow: 0 8px 20px -4px rgba(251, 113, 133, 0.5),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.4);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .clay-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 12px 24px -4px rgba(251, 113, 133, 0.6),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+
+    .clay-btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .clay-btn-secondary {
+      background: rgba(255, 255, 255, 0.9);
+      color: #db2777;
+      border: 1.5px solid #fbcfe8;
+      border-radius: 9999px;
+      box-shadow: 0 4px 14px rgba(244, 114, 182, 0.12);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .clay-btn-secondary:hover {
+      background: #fdf2f8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(244, 114, 182, 0.2);
+    }
+
+    /* 3D Envelope Animation styles */
+    .perspective-container {
+      perspective: 1200px;
+    }
+
+    .envelope-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .envelope-box {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: #ffb3c6;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(244, 114, 182, 0.3), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+      transform-style: preserve-3d;
+      overflow: visible;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 260px solid transparent;
+      border-right: 260px solid transparent;
+      border-top: 170px solid #ff8fab;
+      transform-origin: top center;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+    }
+
+    @media (max-width: 640px) {
+      .envelope-flap {
+        border-left-width: 45vw;
+        border-right-width: 45vw;
+        border-top-width: 130px;
+      }
+    }
+
+    .envelope-pocket {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 260px solid #ff9ebb;
+      border-right: 260px solid #ff9ebb;
+      border-bottom: 160px solid #ff85a2;
+      border-top: 160px solid transparent;
+      border-radius: 0 0 18px 18px;
+      z-index: 8;
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      .envelope-pocket {
+        border-left-width: 45vw;
+        border-right-width: 45vw;
+        border-bottom-width: 120px;
+        border-top-width: 120px;
+      }
+    }
+
+    .envelope-wax-seal {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 58px;
+      height: 58px;
+      background: radial-gradient(circle at 35% 35%, #f43f5e, #be123c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 6px 14px rgba(190, 18, 60, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      z-index: 20;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .envelope-wax-seal:hover {
+      transform: translateX(-50%) scale(1.15) rotate(8deg);
+      box-shadow: 0 8px 20px rgba(190, 18, 60, 0.55);
+    }
+
+    /* Unfolded Letter Sheet */
+    .letter-paper {
+      background: #fffdfa;
+      background-image: 
+        radial-gradient(#fecdd3 0.75px, transparent 0.75px),
+        linear-gradient(#f1f5f9 1px, transparent 1px);
+      background-size: 20px 20px, 100% 32px;
+      border: 1px solid #fed7aa;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(244, 114, 182, 0.22), 0 2px 6px rgba(0,0,0,0.05);
+      transition: all 0.8s cubic-bezier(0.34, 1.25, 0.64, 1);
+      transform-origin: center bottom;
+    }
+
+    /* Floating Heart and Sparkle Animations */
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .animate-floaty {
+      animation: floaty 4s ease-in-out infinite;
+    }
+
+    .animate-pulse-glow {
+      animation: pulseGlow 2.5s ease-in-out infinite;
+    }
+
+    /* Scratch/Tap Coupon Card */
+    .coupon-card {
+      background: linear-gradient(135deg, #fff1f2 0%, #fff 100%);
+      border: 2px dashed #f472b6;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .coupon-card:hover {
+      transform: translateY(-4px) rotate(-1deg);
+      box-shadow: 0 12px 24px -4px rgba(244, 114, 182, 0.25);
+    }
+
+    /* Custom range slider */
+    input[type=range] {
+      accent-color: #ec4899;
+    }
+  
+    /* SEVENTEEN Official Colors: Rose Quartz & Serenity */
+    :root {
+      --svt-rose-quartz: #F7CAC9;
+      --svt-serenity: #92A8D1;
+      --svt-pink-glow: rgba(247, 202, 201, 0.4);
+      --svt-blue-glow: rgba(146, 168, 209, 0.4);
+    }
+
+    .svt-gradient-border {
+      border: 2px solid transparent;
+      background: linear-gradient(#fff, #fff) padding-box,
+                  linear-gradient(135deg, #F7CAC9 0%, #92A8D1 100%) border-box;
+    }
+
+    .svt-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 2px solid #f7cac9;
+      border-radius: 28px;
+      box-shadow: 0 16px 36px -8px rgba(146, 168, 209, 0.25), 
+                  0 4px 14px rgba(247, 202, 201, 0.3),
+                  inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Turntable Vinyl Animation */
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-disc {
+      background: radial-gradient(circle, #2d2a32 0%, #1a181c 65%, #3a3540 85%, #1a181c 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .vinyl-spinning {
+      animation: spinVinyl 4s linear infinite;
+    }
+
+    .tonearm {
+      transform-origin: 15px 15px;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .tonearm-playing {
+      transform: rotate(26deg);
+    }
+
+    .carat-bong-glow {
+      filter: drop-shadow(0 0 12px rgba(247, 202, 201, 0.8)) drop-shadow(0 0 18px rgba(146, 168, 209, 0.8));
+    }
+
+  </style>
+</head>
+<body class="selection:bg-pink-200 selection:text-pink-800">
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-pink-100/80 px-4 py-3 transition-all">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl animate-floaty">🧸</span>
+        <div>
+          <span class="font-cute text-lg font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent">
+            Cozy Corner
+          </span>
+          <span class="hidden sm:inline-block text-xs bg-pink-100 text-pink-700 px-2.5 py-0.5 rounded-full font-medium ml-2">
+            Get Well Soon, Cutie ✨
+          </span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Soundscape Audio Toggle Button -->
+        <button id="audio-toggle-btn" class="clay-btn-secondary px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5" title="Play soothing cozy audio">
+          <span id="audio-icon">🎵</span>
+          <span id="audio-label" class="hidden sm:inline">Cozy Tunes</span>
+        </button>
+
+        <!-- Database Quick View Button -->
+        <button id="view-db-btn" class="clay-btn-secondary px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5 border-purple-200" title="View Girlfriend's Responses & Recovery Wins">
+          <span>📊</span>
+          <span class="hidden sm:inline">Database</span>
+          <span id="db-badge-count" class="px-1.5 py-0.2 bg-purple-500 text-white rounded-full text-[10px] font-bold">0</span>
+        </button>
+
+        <!-- Personalize Button -->
+        <button id="open-personalize-btn" class="clay-btn-secondary px-3 py-1.5 text-xs sm:text-sm font-semibold flex items-center gap-1.5" title="Personalize name & letter">
+          <span>✏️</span>
+          <span class="hidden sm:inline">Personalize</span>
+        </button>
+
+        <!-- Love Level Indicator -->
+        <div class="flex items-center gap-1.5 bg-rose-50 border border-rose-200/60 px-3 py-1.5 rounded-full text-xs font-bold text-rose-600 shadow-sm">
+          <span>💖</span>
+          <span id="love-meter-val">1000%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
+
+    <!-- HERO SECTION: Interactive 3D Companion Stage -->
+    <section class="clay-card p-6 md:p-8 relative overflow-hidden">
+      <!-- Decorative background blooms -->
+      <div class="absolute -top-16 -left-16 w-56 h-56 bg-pink-200/50 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-16 -right-16 w-56 h-56 bg-purple-200/50 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        
+        <!-- Left Column: Friendly Greeting & Story -->
+        <div class="lg:col-span-5 space-y-4 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100/80 text-rose-600 text-xs font-semibold">
+            <span>✨</span> Specially Prescribed For: <span id="display-girlfriend-name" class="underline decoration-pink-400">My Sweetest Girl</span>
+          </div>
+
+          <h1 class="font-cute text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
+            Sending You Soft Blankets & <span class="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">Warm Hugs</span>
+          </h1>
+
+          <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+            I know your body is feeling tired and unwell right now. You don't have to be strong or do anything today. 
+            Meet <strong>Dr. Cuddle Bear</strong> — he is on 24/7 duty to deliver forehead kisses, hot tea, and keep you smiling!
+          </p>
+
+          <!-- Interactive Companion Controls -->
+          <div class="space-y-2 pt-2">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Interact With Dr. Cuddle:</p>
+            <div class="flex flex-wrap gap-2 justify-center lg:justify-start">
+              <button id="btn-give-kiss" class="clay-btn px-4 py-2 text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <span>💋</span> Forehead Kiss
+              </button>
+              <button id="btn-tuck-blanket" class="clay-btn-secondary px-4 py-2 text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <span>🛌</span> Cozy Blanket
+              </button>
+              <button id="btn-serve-tea" class="clay-btn-secondary px-4 py-2 text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <span>🍵</span> Warm Tea
+              </button>
+              <button id="btn-tickle" class="clay-btn-secondary px-4 py-2 text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <span>✨</span> Tickle Tummy
+              </button>
+            </div>
+          </div>
+
+          <div id="bear-reaction-toast" class="h-6 text-xs text-pink-600 font-semibold italic transition-all duration-300">
+            Tap Dr. Cuddle or click a button to cheer him up! 💖
+          </div>
+        </div>
+
+        <!-- Right Column: 3D Canvas Box -->
+        <div class="lg:col-span-7 flex flex-col items-center justify-center">
+          <div class="relative w-full max-w-md h-80 sm:h-96 rounded-3xl bg-gradient-to-b from-pink-100/60 via-purple-50/50 to-pink-50/70 border border-white/80 shadow-inner flex items-center justify-center overflow-hidden">
+            <!-- 3D WebGL Canvas Container -->
+            <div id="threejs-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+            <!-- Floating 3D Badge -->
+            <div class="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-[11px] font-medium text-gray-500 shadow-sm flex items-center gap-1 pointer-events-none">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              Interactive 3D • Drag to orbit & click bear
+            </div>
+
+            <!-- Heart shower trigger icon -->
+            <button id="canvas-heart-burst" class="absolute top-3 right-3 bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md text-base hover:scale-110 active:scale-95 transition-transform" title="Shoot hearts!">
+              💖
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SEGMENT 2: THE 3D INTERACTIVE LOVE LETTER & ENVELOPE -->
+    <section class="clay-card p-6 md:p-10 space-y-6">
+      <div class="text-center max-w-xl mx-auto space-y-2">
+        <div class="inline-block px-3 py-1 rounded-full bg-pink-100 text-pink-600 text-xs font-bold uppercase tracking-wider">
+          💌 A Handwritten Hug
+        </div>
+        <h2 class="font-cute text-3xl sm:text-4xl font-bold text-gray-800">
+          Your Special Get-Well Letter
+        </h2>
+        <p class="text-sm text-gray-600">
+          A sealed envelope just arrived for you. Tap the heart wax seal to break it open and unfold your message.
+        </p>
+      </div>
+
+      <!-- Envelope / Letter Area -->
+      <div class="perspective-container py-4">
+
+        <!-- Unopened Envelope View -->
+        <div id="envelope-sealed-state" class="envelope-wrapper">
+          <div class="envelope-box">
+            <!-- Top Flap with Wax Seal -->
+            <div id="envelope-top-flap" class="envelope-flap">
+              <div id="wax-seal-btn" class="envelope-wax-seal" title="Click to open letter!">
+                <span class="text-xl">❤️</span>
+              </div>
+            </div>
+
+            <!-- Envelope Pocket Layers -->
+            <div class="envelope-pocket"></div>
+
+            <!-- Peek of letter inside -->
+            <div class="absolute top-6 left-1/2 -translate-x-1/2 w-4/5 h-20 bg-amber-50 rounded-t-lg border-t border-amber-200 shadow-sm opacity-90 text-center pt-3 text-xs text-amber-700/60 font-handwriting">
+              Click the wax seal to read...
+            </div>
+
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 text-center text-white font-cute text-sm drop-shadow pointer-events-none z-10">
+              To: <span id="envelope-to-name">My Beautiful Girl</span> 🌸
+            </div>
+          </div>
+        </div>
+
+        <!-- Unfolded Letter View (Hidden by default until opened) -->
+        <div id="letter-unfolded-state" class="hidden max-w-2xl mx-auto letter-paper p-6 sm:p-10 relative">
+          <!-- Cute Washi Tape Decor on Top -->
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-7 bg-pink-200/80 backdrop-blur-sm border border-pink-300/60 rotate-1 shadow-sm rounded-sm"></div>
+
+          <!-- Letter Header -->
+          <div class="flex items-center justify-between border-b border-rose-100 pb-4 mb-6">
+            <div>
+              <p class="text-xs uppercase tracking-widest text-pink-400 font-bold">Care Dispatch #001</p>
+              <h3 class="font-handwriting text-2xl sm:text-3xl text-pink-700 font-bold">
+                Dearest <span id="letter-recipient-name">Sweetheart</span>,
+              </h3>
+            </div>
+            <div class="text-right">
+              <span class="text-2xl animate-bounce inline-block">🌸</span>
+              <p class="text-xs text-gray-400">Strictly Prescribed: Rest & Love</p>
+            </div>
+          </div>
+
+          <!-- Letter Body Content -->
+          <div class="space-y-4 font-handwriting text-lg sm:text-xl text-gray-700 leading-relaxed" id="letter-body-text">
+            <p>
+              I wish more than anything that I had a magic wand to zap away your headache, chills, sniffles, and tiredness right this second. Since I can't wave a wand, I built this cozy space to wrap you in love.
+            </p>
+            <p>
+              Please take this as your official permission slip: <strong>you don't have to be productive today.</strong> The world can wait. Your only job right now is curling into your softest blankets, sipping warm liquids, and letting your wonderful body heal.
+            </p>
+            <p>
+              Whenever you're ready, I am on standby for hot soup deliveries, tucking you in, quiet movie marathons, forehead kisses, or just sitting silently beside you while you nap. 
+            </p>
+            <p>
+              You are the strongest, sweetest, and most gorgeous person in my entire world — even when your nose is red and your hair is a wild bed-head mess. I love you endlessly.
+            </p>
+          </div>
+
+          <!-- Letter Sign-off -->
+          <div class="mt-8 pt-4 border-t border-rose-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p class="font-handwriting text-2xl font-bold text-pink-600 flex items-center gap-1.5" id="letter-sender-name">The Monkey 🐒</p>
+            </div>
+
+            <!-- Letter Controls -->
+            <div class="flex items-center gap-2">
+              <button id="btn-fold-letter" class="clay-btn-secondary px-3 py-1.5 text-xs font-semibold">
+                💌 Seal It Back
+              </button>
+              <button id="btn-copy-letter" class="clay-btn px-3 py-1.5 text-xs font-semibold">
+                📋 Copy Note
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    
+    <!-- SEGMENT: SEVENTEEN CUTE HEALING JUKEBOX (세븐틴) -->
+    <section class="svt-card p-6 md:p-8 space-y-6 relative overflow-hidden" id="seventeen-jukebox-section">
+      <!-- Background Rose Quartz & Serenity soft glow orbs -->
+      <div class="absolute -top-20 -left-20 w-64 h-64 bg-[#F7CAC9]/40 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-[#92A8D1]/40 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-pink-100/80 pb-4 relative z-10">
+        <div class="space-y-1 text-center sm:text-left">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#F7CAC9]/60 to-[#92A8D1]/50 text-slate-700 text-xs font-bold tracking-wide shadow-sm">
+            <span>💎</span> SEVENTEEN (세븐틴) Cozy Care Player
+          </div>
+          <h2 class="font-cute text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#ea7a91] via-[#d685ad] to-[#6087c7] bg-clip-text text-transparent">
+            Cute SEVENTEEN Healing Jukebox
+          </h2>
+          <p class="text-xs sm:text-sm text-gray-600">
+            Sweet melodies, comforting lyrics & Rose Quartz + Serenity vibes to brighten your recovery!
+          </p>
+        </div>
+
+        <!-- Lightstick cheering mini button -->
+        <button id="carat-cheer-btn" class="clay-btn-secondary px-4 py-2 text-xs font-bold flex items-center gap-2 border-[#F7CAC9] shadow-sm hover:scale-105 active:scale-95 transition-all" title="Cheer with Carat Bong!">
+          <span class="text-base animate-bounce">🪄</span>
+          <span class="bg-gradient-to-r from-[#e06d88] to-[#557ebf] bg-clip-text text-transparent">Cheer Carat Bong</span>
+        </button>
+      </div>
+
+      <!-- Main Turntable and Track Details -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
+
+        <!-- Left: Interactive Vinyl Record Deck -->
+        <div class="lg:col-span-5 flex flex-col items-center justify-center">
+          <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl bg-gradient-to-br from-[#fff7f8] via-[#f7f9ff] to-[#f4f7fb] border-2 border-[#F7CAC9]/70 shadow-lg p-4 flex items-center justify-center">
+            
+            <!-- Vinyl Record -->
+            <div id="vinyl-disc-el" class="vinyl-disc w-52 h-52 sm:w-60 sm:h-60 rounded-full flex items-center justify-center transition-transform">
+              <!-- Concentric subtle grooves -->
+              <div class="w-40 h-40 rounded-full border border-gray-700/60 flex items-center justify-center">
+                <div class="w-28 h-28 rounded-full border border-gray-700/80 flex items-center justify-center">
+                  
+                  <!-- Center Label: Rose Quartz & Serenity -->
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#F7CAC9] to-[#92A8D1] border-2 border-white shadow-inner flex flex-col items-center justify-center text-center">
+                    <span class="text-sm">💎</span>
+                    <span class="font-cute text-[9px] font-bold text-white drop-shadow">17 SVT</span>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Tonearm / Needle (Rotates over vinyl when playing) -->
+            <div id="tonearm-el" class="tonearm absolute top-4 right-4 w-6 h-28 pointer-events-none z-20">
+              <!-- Pivot base -->
+              <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-gray-300 to-white shadow-md border border-gray-300"></div>
+              <!-- Metallic arm bar -->
+              <div class="w-1.5 h-20 bg-gradient-to-r from-gray-300 via-gray-100 to-gray-400 mx-auto -mt-1 rounded-sm shadow-sm"></div>
+              <!-- Cartridge / Head -->
+              <div class="w-3.5 h-5 bg-rose-400 rounded-sm mx-auto -mt-1 shadow"></div>
+            </div>
+
+            <!-- Playing status indicator -->
+            <div class="absolute bottom-3 left-4 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-600 shadow-sm">
+              <span id="vinyl-pulse-dot" class="w-2 h-2 rounded-full bg-gray-300"></span>
+              <span id="vinyl-status-label">Paused</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Player Controls, Song Selector & Synchronized Lyrics -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- Song Selector Tabs -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Choose SEVENTEEN Track:</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button class="svt-song-tab p-2 rounded-xl border border-[#F7CAC9] bg-rose-50/90 text-rose-800 font-cute text-xs font-bold active:scale-95 transition-all text-center selected shadow-sm" data-track="0">
+                <span class="block text-base">🌸</span>
+                <span>Oh My! (어쩌나)</span>
+              </button>
+              <button class="svt-song-tab p-2 rounded-xl border border-gray-200 bg-white hover:bg-pink-50/50 text-gray-600 font-cute text-xs font-semibold active:scale-95 transition-all text-center" data-track="1">
+                <span class="block text-base">📸</span>
+                <span>Snap Shoot</span>
+              </button>
+              <button class="svt-song-tab p-2 rounded-xl border border-gray-200 bg-white hover:bg-blue-50/50 text-gray-600 font-cute text-xs font-semibold active:scale-95 transition-all text-center" data-track="2">
+                <span class="block text-base">🩹</span>
+                <span>Healing (힐링)</span>
+              </button>
+              <button class="svt-song-tab p-2 rounded-xl border border-gray-200 bg-white hover:bg-purple-50/50 text-gray-600 font-cute text-xs font-semibold active:scale-95 transition-all text-center" data-track="3">
+                <span class="block text-base">🍯</span>
+                <span>Darl+ing</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Song Card & Live Synchronized Lyrics -->
+          <div class="p-4 rounded-2xl bg-gradient-to-r from-[#F7CAC9]/30 via-white to-[#92A8D1]/30 border border-[#F7CAC9]/60 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <span id="svt-track-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7CAC9] text-rose-800 uppercase tracking-wide">
+                  Cute Heart-Flutter 🌸
+                </span>
+                <h3 id="svt-track-title" class="font-cute text-lg sm:text-xl font-bold text-gray-800 mt-1">
+                  Oh My! (어쩌나) — SEVENTEEN
+                </h3>
+              </div>
+              <span class="text-3xl animate-floaty">🧸</span>
+            </div>
+
+            <!-- Synchronized Lyrics Teleprompter -->
+            <div class="p-3 bg-white/90 rounded-xl border border-pink-100 min-h-[90px] flex flex-col justify-center text-center space-y-1">
+              <p id="svt-lyric-korean" class="font-cute text-base sm:text-lg font-bold text-[#e06d88]">
+                "어쩌나 어쩌나 그대를 어쩌나~"
+              </p>
+              <p id="svt-lyric-roman" class="text-xs text-gray-500 italic">
+                Eojjeona eojjeona geudaereul eojjeona~
+              </p>
+              <p id="svt-lyric-english" class="text-xs sm:text-sm font-semibold text-slate-700">
+                "What should I do, what should I do? You make my heart flutter so much!"
+              </p>
+            </div>
+
+            <!-- Song Context Note -->
+            <p id="svt-track-tip" class="text-xs text-slate-600 italic bg-white/60 px-3 py-1.5 rounded-lg border border-slate-100">
+              💡 <strong>Why this helps you feel better:</strong> "Oh My!" is SEVENTEEN's most heart-fluttering, joyful confession song — guaranteed to bring an instant smile to your face!
+            </p>
+          </div>
+
+          <!-- Controls Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div class="flex items-center gap-2">
+              <button id="svt-prev-btn" class="clay-btn-secondary p-2.5 rounded-full text-xs font-bold" title="Previous Track">
+                ⏮️
+              </button>
+              <button id="svt-play-btn" class="clay-btn px-5 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2" title="Play / Pause SEVENTEEN melody">
+                <span id="svt-play-icon">▶️</span>
+                <span id="svt-play-text">Play Cozy Melody</span>
+              </button>
+              <button id="svt-next-btn" class="clay-btn-secondary p-2.5 rounded-full text-xs font-bold" title="Next Track">
+                ⏭️
+              </button>
+            </div>
+
+            <!-- External Link to official MV -->
+            <a id="svt-yt-link" href="https://www.youtube.com/results?search_query=SEVENTEEN+Oh+My+Music+Video" target="_blank" rel="noopener noreferrer" class="text-xs text-[#557ebf] hover:text-[#385ca3] font-bold flex items-center gap-1 hover:underline">
+              <span>Watch Official MV</span> ↗
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SEGMENT 3: VIRTUAL CARE PACKAGE (TACTILE COMFORT STATIONS) -->
+    <section class="space-y-6">
+      <div class="text-center max-w-xl mx-auto space-y-2">
+        <div class="inline-block px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wider">
+          📦 Instant Care Package
+        </div>
+        <h2 class="font-cute text-3xl sm:text-4xl font-bold text-gray-800">
+          Tactile Comfort Stations
+        </h2>
+        <p class="text-sm text-gray-600">
+          Interactive little remedies designed to release feel-good endorphins immediately!
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Care Item 1: The Warm Hug Simulator -->
+        <div class="clay-card p-6 flex flex-col justify-between relative overflow-hidden">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-pink-500 bg-pink-100 px-2.5 py-0.5 rounded-full">Interactive Station 1</span>
+              <span class="text-2xl">🫂</span>
+            </div>
+            <h3 class="font-cute text-xl font-bold text-gray-800">Warm Hug Charging Station</h3>
+            <p class="text-xs sm:text-sm text-gray-600">
+              Press and hold the glowing heart to charge up a deep, warm, squeezy hug!
+            </p>
+          </div>
+
+          <!-- Squeezy Heart Button Container -->
+          <div class="py-6 flex flex-col items-center justify-center">
+            <div class="relative flex items-center justify-center">
+              <!-- SVG Progress Circle -->
+              <svg class="w-36 h-36 transform -rotate-90">
+                <circle cx="72" cy="72" r="62" stroke="#fce7f3" stroke-width="8" fill="transparent"></circle>
+                <circle id="hug-progress-circle" cx="72" cy="72" r="62" stroke="#f43f5e" stroke-width="8" stroke-dasharray="390" stroke-dashoffset="390" stroke-linecap="round" fill="transparent" class="transition-all duration-75"></circle>
+              </svg>
+
+              <!-- Central Hold Button -->
+              <button id="hug-hold-btn" class="absolute w-24 h-24 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-rose-400 text-white flex flex-col items-center justify-center shadow-lg active:scale-95 transition-all select-none">
+                <span id="hug-heart-icon" class="text-3xl transition-transform">💖</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider mt-1">HOLD ME</span>
+              </button>
+            </div>
+
+            <!-- Progress readout -->
+            <p id="hug-status-text" class="text-xs font-bold text-rose-500 mt-4 text-center">
+              Hold for 3 seconds to complete the hug!
+            </p>
+          </div>
+
+          <div class="text-[11px] text-gray-400 text-center italic">
+            Backed by virtual dopamine technology ✨
+          </div>
+        </div>
+
+
+        <!-- Care Item 2: Pill Bottle of Sweet Compliments & Chuckles -->
+        <div class="clay-card p-6 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-purple-600 bg-purple-100 px-2.5 py-0.5 rounded-full">Interactive Station 2</span>
+              <span class="text-2xl">💊</span>
+            </div>
+            <h3 class="font-cute text-xl font-bold text-gray-800">Sweet Medicine Dispenser</h3>
+            <p class="text-xs sm:text-sm text-gray-600">
+              Zero bitter pills allowed! Tap to dispense a fresh sweet vitamin note.
+            </p>
+          </div>
+
+          <!-- Pill Display Box -->
+          <div class="my-4 p-4 rounded-2xl bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100 min-h-[140px] flex flex-col items-center justify-center text-center">
+            <div id="pill-icon" class="text-3xl mb-1 animate-bounce">💊</div>
+            <h4 id="pill-title" class="font-cute text-sm font-bold text-pink-600">Vitamin L (Love)</h4>
+            <p id="pill-content" class="text-xs sm:text-sm text-gray-700 mt-1 font-medium">
+              "You are cute when you're healthy, and honestly just as cute when you're wrapped in a duvet like a human sushi roll."
+            </p>
+          </div>
+
+          <!-- Dispense Button -->
+          <button id="btn-dispense-pill" class="clay-btn w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
+            <span>✨</span> Dispense Another Dose
+          </button>
+        </div>
+
+
+        <!-- Care Item 3: Virtual Cozy Brew Kitchen -->
+        <div class="clay-card p-6 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-amber-600 bg-amber-100 px-2.5 py-0.5 rounded-full">Interactive Station 3</span>
+              <span class="text-2xl">☕</span>
+            </div>
+            <h3 class="font-cute text-xl font-bold text-gray-800">Custom Cozy Brew Bar</h3>
+            <p class="text-xs sm:text-sm text-gray-600">
+              Pick your ingredients to whip up the perfect comforting warm cup:
+            </p>
+          </div>
+
+          <!-- Brew Options -->
+          <div class="space-y-3 my-4">
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">Choose Base:</label>
+              <div class="grid grid-cols-3 gap-1.5 text-xs">
+                <button class="brew-base-btn py-1.5 px-2 rounded-xl border border-pink-200 bg-pink-50 text-pink-700 font-medium active:scale-95 transition-all selected" data-base="Chamomile Flower Tea 🌼">
+                  🌼 Chamomile
+                </button>
+                <button class="brew-base-btn py-1.5 px-2 rounded-xl border border-amber-200 bg-white text-gray-600 font-medium active:scale-95 transition-all" data-base="Ginger Lemon Honey 🍯">
+                  🍯 Ginger Lemon
+                </button>
+                <button class="brew-base-btn py-1.5 px-2 rounded-xl border border-rose-200 bg-white text-gray-600 font-medium active:scale-95 transition-all" data-base="Creamy Hot Chocolate 🍫">
+                  🍫 Hot Cocoa
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">Add Sweet Boosters:</label>
+              <div class="flex flex-wrap gap-1.5 text-xs">
+                <button class="brew-addon-btn py-1 px-2.5 rounded-full border border-pink-200 bg-white text-gray-600" data-addon="Extra Honey">
+                  + Honey 🍯
+                </button>
+                <button class="brew-addon-btn py-1 px-2.5 rounded-full border border-pink-200 bg-white text-gray-600" data-addon="Lavender Sprig">
+                  + Lavender 🪻
+                </button>
+                <button class="brew-addon-btn py-1 px-2.5 rounded-full border border-pink-200 bg-white text-gray-600" data-addon="Warm Cinnamon">
+                  + Cinnamon 🪵
+                </button>
+                <button class="brew-addon-btn py-1 px-2.5 rounded-full border border-pink-200 bg-white text-gray-600" data-addon="100 Kisses">
+                  + 100 Kisses 💋
+                </button>
+              </div>
+            </div>
+
+            <!-- Mug preview with animated steam -->
+            <div id="brew-result-box" class="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-center text-xs text-amber-800 font-medium">
+              Ready to brew: Chamomile Flower Tea with endless love!
+            </div>
+          </div>
+
+          <button id="btn-brew-drink" class="clay-btn w-full py-2.5 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
+            <span>🫖</span> Brew & Deliver to Bed
+          </button>
+        </div>
+
+
+        <!-- Care Item 4: Scratch-off / Tap Love Coupons -->
+        <div class="clay-card p-6 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-emerald-600 bg-emerald-100 px-2.5 py-0.5 rounded-full">Interactive Station 4</span>
+              <span class="text-2xl">🎟️</span>
+            </div>
+            <h3 class="font-cute text-xl font-bold text-gray-800">Feel-Better VIP Coupons</h3>
+            <p class="text-xs sm:text-sm text-gray-600">
+              Tap any coupon below to redeem it immediately (guaranteed no expiration date!):
+            </p>
+          </div>
+
+          <!-- 4 Coupon Cards -->
+          <div class="grid grid-cols-2 gap-2.5 my-3">
+            <div class="coupon-card p-3 text-center" data-coupon="Master Chef Delivery: I will cook or order whatever dish your tummy desires!">
+              <div class="text-xl">🍲</div>
+              <p class="font-cute text-xs font-bold text-pink-600 mt-1">Soup & Dinner</p>
+              <p class="text-[10px] text-gray-500">Tap to redeem</p>
+            </div>
+
+            <div class="coupon-card p-3 text-center" data-coupon="VIP Massage: 30 minutes of gentle head rubs, back scratches, or foot massage.">
+              <div class="text-xl">💆‍♀️</div>
+              <p class="font-cute text-xs font-bold text-pink-600 mt-1">Gentle Rubs</p>
+              <p class="text-[10px] text-gray-500">Tap to redeem</p>
+            </div>
+
+            <div class="coupon-card p-3 text-center" data-coupon="Movie Tyrant: You get 100% control of the TV remote all day with zero complaints!">
+              <div class="text-xl">🎬</div>
+              <p class="font-cute text-xs font-bold text-pink-600 mt-1">Movie Remote</p>
+              <p class="text-[10px] text-gray-500">Tap to redeem</p>
+            </div>
+
+            <div class="coupon-card p-3 text-center" data-coupon="Butler On-Demand: I will fetch blankets, refill water, and tuck you in anytime.">
+              <div class="text-xl">🧦</div>
+              <p class="font-cute text-xs font-bold text-pink-600 mt-1">Butler Service</p>
+              <p class="text-[10px] text-gray-500">Tap to redeem</p>
+            </div>
+          </div>
+
+          <div id="coupon-redeem-msg" class="h-6 text-xs text-center font-bold text-emerald-600">
+            Pick a coupon to activate! 🌟
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SEGMENT 4: MOOD & SYMPTOM CHECK-IN -->
+    <section class="clay-card p-6 md:p-8 space-y-6">
+      <div class="text-center max-w-xl mx-auto space-y-2">
+        <div class="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
+          🩺 Daily Vitals Check
+        </div>
+        <h2 class="font-cute text-3xl font-bold text-gray-800">
+          How are you feeling right now, sweetie?
+        </h2>
+        <p class="text-sm text-gray-600">
+          Select what fits best right now for a personalized recovery recommendation:
+        </p>
+      </div>
+
+      <!-- Mood Option Buttons -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-3xl mx-auto">
+        <button class="mood-check-btn p-3 rounded-2xl border border-pink-200 bg-white hover:bg-pink-50 flex flex-col items-center gap-1.5 transition-all text-center" data-mood="sleepy">
+          <span class="text-3xl">😴</span>
+          <span class="font-cute text-xs font-semibold text-gray-700">Super Sleepy</span>
+        </button>
+        <button class="mood-check-btn p-3 rounded-2xl border border-pink-200 bg-white hover:bg-pink-50 flex flex-col items-center gap-1.5 transition-all text-center" data-mood="fever">
+          <span class="text-3xl">🤒</span>
+          <span class="font-cute text-xs font-semibold text-gray-700">Hot & Achy</span>
+        </button>
+        <button class="mood-check-btn p-3 rounded-2xl border border-pink-200 bg-white hover:bg-pink-50 flex flex-col items-center gap-1.5 transition-all text-center" data-mood="sniffly">
+          <span class="text-3xl">🤧</span>
+          <span class="font-cute text-xs font-semibold text-gray-700">Sniffly & Cold</span>
+        </button>
+        <button class="mood-check-btn p-3 rounded-2xl border border-pink-200 bg-white hover:bg-pink-50 flex flex-col items-center gap-1.5 transition-all text-center" data-mood="moody">
+          <span class="text-3xl">🥺</span>
+          <span class="font-cute text-xs font-semibold text-gray-700">Need Attention</span>
+        </button>
+        <button class="mood-check-btn p-3 rounded-2xl border border-pink-200 bg-white hover:bg-pink-50 flex flex-col items-center gap-1.5 transition-all text-center" data-mood="better">
+          <span class="text-3xl">🌸</span>
+          <span class="font-cute text-xs font-semibold text-gray-700">A Little Better</span>
+        </button>
+      </div>
+
+      <!-- Dynamic Mood Advice Box -->
+      <div id="mood-response-card" class="max-w-2xl mx-auto p-5 rounded-2xl bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 border border-pink-200 text-center space-y-2">
+        <h4 id="mood-response-title" class="font-cute text-base font-bold text-pink-700">
+          Dr. Cuddle's Advice for Right Now:
+        </h4>
+        <p id="mood-response-body" class="text-sm text-gray-700 leading-relaxed">
+          Tap one of the mood buttons above to see Dr. Cuddle's customized care instructions!
+        </p>
+      </div>
+    </section>
+
+
+    <!-- SEGMENT 5: STARRY WISH & AFFIRMATION JAR -->
+    <section class="clay-card p-6 md:p-8 space-y-6">
+      <div class="text-center max-w-xl mx-auto space-y-2">
+        <div class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider">
+          ⭐ Starry Wishing Jar
+        </div>
+        <h2 class="font-cute text-3xl font-bold text-gray-800">
+          Catch a Glowing Star
+        </h2>
+        <p class="text-sm text-gray-600">
+          Every star inside this jar holds a little truth to keep your spirits bright:
+        </p>
+      </div>
+
+      <!-- Interactive Stars Container -->
+      <div class="flex flex-wrap items-center justify-center gap-3 max-w-2xl mx-auto py-2">
+        <button class="star-wish-btn p-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-2xl shadow-sm hover:scale-125 transition-transform" data-wish="You are the absolute light of my life, even when you're under the weather!">⭐</button>
+        <button class="star-wish-btn p-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-2xl shadow-sm hover:scale-125 transition-transform" data-wish="Drink one sip of warm water right now! Hydration is queen. 💧">🌟</button>
+        <button class="star-wish-btn p-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-2xl shadow-sm hover:scale-125 transition-transform" data-wish="Resting isn't giving up — it's letting your superpower recharge. 🔋">✨</button>
+        <button class="star-wish-btn p-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-2xl shadow-sm hover:scale-125 transition-transform" data-wish="I'm sending 1,000,000 invisible forehead kisses to your pillow right now. 💋">💫</button>
+        <button class="star-wish-btn p-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-2xl shadow-sm hover:scale-125 transition-transform" data-wish="You're going to feel back to your bubbly, beautiful self so soon. 🌺">⭐</button>
+        <button class="star-wish-btn p-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-300 text-2xl shadow-sm hover:scale-125 transition-transform" data-wish="No matter how sick you feel, you are so deeply cherished and safe. 🛡️">🌟</button>
+      </div>
+
+      <div id="star-wish-display" class="max-w-md mx-auto p-4 rounded-xl bg-amber-50 border border-amber-200 text-center text-xs sm:text-sm font-semibold text-amber-900 min-h-[50px] flex items-center justify-center">
+        Tap any star above to read its secret message! ✨
+      </div>
+    </section>
+
+  
+    <!-- SEGMENT 6: HER REPLIES & RECOVERY WINS (REP-WINS) -->
+    <section class="clay-card p-6 md:p-8 space-y-6" id="reply-station-section">
+      <div class="text-center max-w-xl mx-auto space-y-2">
+        <div class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+          💌 Girl's Recovery Station
+        </div>
+        <h2 class="font-cute text-3xl font-bold text-gray-800">
+          Leave a Note & Track Today's Wins
+        </h2>
+        <p class="text-sm text-gray-600">
+          Let your boyfriend know how you're feeling, record your small recovery victories ("rep-wins"), or request anything you need!
+        </p>
+      </div>
+
+      <div class="max-w-2xl mx-auto space-y-5 bg-white/70 p-6 rounded-3xl border border-pink-100 shadow-sm">
+        
+        <!-- Status / Mood Selector -->
+        <div>
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Current Status / Mood:</label>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button type="button" class="reply-status-tag px-3 py-1.5 rounded-full border border-pink-200 bg-pink-50 text-pink-700 font-semibold active:scale-95 transition-all selected" data-status="Resting bundled up 💤">
+              💤 Resting in bed
+            </button>
+            <button type="button" class="reply-status-tag px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 font-semibold active:scale-95 transition-all" data-status="Craving warm soup 🍲">
+              🍲 Craving warm soup
+            </button>
+            <button type="button" class="reply-status-tag px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 font-semibold active:scale-95 transition-all" data-status="Need big cuddles 🥺">
+              🥺 Need big cuddles
+            </button>
+            <button type="button" class="reply-status-tag px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 font-semibold active:scale-95 transition-all" data-status="Feeling a bit better! 🌸">
+              🌸 Feeling slightly better
+            </button>
+            <button type="button" class="reply-status-tag px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 font-semibold active:scale-95 transition-all" data-status="Fever is coming down 🧊">
+              🧊 Fever coming down
+            </button>
+          </div>
+        </div>
+
+        <!-- Recovery Wins Checklist ("Rep-Wins") -->
+        <div>
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Today's Recovery Wins ("Rep-Wins"):</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50 cursor-pointer">
+              <input type="checkbox" id="win-water" class="rep-win-check rounded text-pink-500 focus:ring-pink-400 w-4 h-4">
+              <span class="font-medium text-gray-700">💧 Drank 1 cup of warm water</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50 cursor-pointer">
+              <input type="checkbox" id="win-meds" class="rep-win-check rounded text-pink-500 focus:ring-pink-400 w-4 h-4">
+              <span class="font-medium text-gray-700">💊 Took medicine / vitamins</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50 cursor-pointer">
+              <input type="checkbox" id="win-soup" class="rep-win-check rounded text-pink-500 focus:ring-pink-400 w-4 h-4">
+              <span class="font-medium text-gray-700">🍲 Ate warm soup or snack</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50 cursor-pointer">
+              <input type="checkbox" id="win-nap" class="rep-win-check rounded text-pink-500 focus:ring-pink-400 w-4 h-4">
+              <span class="font-medium text-gray-700">🛌 Took a restful nap</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50 cursor-pointer sm:col-span-2">
+              <input type="checkbox" id="win-smile" class="rep-win-check rounded text-pink-500 focus:ring-pink-400 w-4 h-4">
+              <span class="font-medium text-gray-700">🧸 Smiled at Dr. Cuddle / listened to SEVENTEEN</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Sweet Note Input -->
+        <div>
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Your Sweet Message for Him:</label>
+          <textarea id="reply-message-input" rows="3" class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-200 bg-white focus:outline-none focus:ring-2 focus:ring-pink-400 text-xs sm:text-sm text-gray-800" placeholder="e.g. Thank you so much for this website babe, feeling warmer already! Could you bring me some hot ginger tea? ❤️"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="submit-reply-btn" class="clay-btn w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+          <span>💌</span> Save Response to Database
+        </button>
+
+        <p id="reply-success-toast" class="text-xs text-center font-bold text-emerald-600 hidden">
+          ✅ Response and recovery wins logged into the database!
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- SEGMENT 7: CAREGIVER RECOVERY DATABASE & LIVE RESPONSE LOG -->
+    <section class="clay-card p-6 md:p-8 space-y-6" id="database-dashboard-section">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-pink-100 pb-4">
+        <div class="space-y-1 text-center sm:text-left">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wider">
+            <span>📊</span> Live Response & Recovery Database
+          </div>
+          <h2 class="font-cute text-2xl sm:text-3xl font-bold text-gray-800">
+            Caregiver Response Archive
+          </h2>
+          <p class="text-xs sm:text-sm text-gray-600">
+            Real-time database recording all her replies, recovery milestones ("rep-wins"), mood checks, and care coupons!
+          </p>
+        </div>
+
+        <!-- Database Quick Tools -->
+        <div class="flex items-center gap-2">
+          <button id="db-copy-summary-btn" class="clay-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1.5" title="Copy neat summary for WhatsApp / iMessage">
+            <span>📋</span> Copy Summary
+          </button>
+          <button id="db-export-json-btn" class="clay-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1.5" title="Download database JSON">
+            <span>📥</span> Export JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Stats Counters -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-pink-50 to-white border border-pink-200 text-center">
+          <p class="text-[11px] font-bold text-gray-500 uppercase">Total Entries</p>
+          <p id="db-stat-total" class="font-cute text-2xl sm:text-3xl font-bold text-pink-600 mt-0.5">0</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 text-center">
+          <p class="text-[11px] font-bold text-gray-500 uppercase">Recovery Wins</p>
+          <p id="db-stat-wins" class="font-cute text-2xl sm:text-3xl font-bold text-emerald-600 mt-0.5">0</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-purple-50 to-white border border-purple-200 text-center">
+          <p class="text-[11px] font-bold text-gray-500 uppercase">Notes & Replies</p>
+          <p id="db-stat-replies" class="font-cute text-2xl sm:text-3xl font-bold text-purple-600 mt-0.5">0</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-amber-50 to-white border border-amber-200 text-center">
+          <p class="text-[11px] font-bold text-gray-500 uppercase">Coupons Claimed</p>
+          <p id="db-stat-coupons" class="font-cute text-2xl sm:text-3xl font-bold text-amber-600 mt-0.5">0</p>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="flex items-center justify-between flex-wrap gap-2 pt-2 border-b border-gray-100 pb-3">
+        <div class="flex flex-wrap gap-1.5 text-xs" id="db-filter-group">
+          <button class="db-filter-btn px-3 py-1 rounded-full font-bold bg-pink-100 text-pink-700 selected" data-filter="all">
+            All (<span id="count-filter-all">0</span>)
+          </button>
+          <button class="db-filter-btn px-3 py-1 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="reply">
+            💌 Replies (<span id="count-filter-reply">0</span>)
+          </button>
+          <button class="db-filter-btn px-3 py-1 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="win">
+            🏆 Wins (<span id="count-filter-win">0</span>)
+          </button>
+          <button class="db-filter-btn px-3 py-1 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="coupon">
+            🎟️ Coupons (<span id="count-filter-coupon">0</span>)
+          </button>
+          <button class="db-filter-btn px-3 py-1 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="mood">
+            🩺 Moods (<span id="count-filter-mood">0</span>)
+          </button>
+          <button class="db-filter-btn px-3 py-1 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="care">
+            🫂 Hugs & Tea (<span id="count-filter-care">0</span>)
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="db-add-sample-btn" class="text-xs text-pink-600 hover:underline font-semibold" title="Add a sample test entry">
+            + Test Log
+          </button>
+          <button id="db-clear-all-btn" class="text-xs text-gray-400 hover:text-red-500 font-semibold" title="Clear database">
+            Clear All
+          </button>
+        </div>
+      </div>
+
+      <!-- Database Log Entries List -->
+      <div id="db-log-container" class="space-y-3 min-h-[160px]">
+        <!-- Rendered dynamically in JS -->
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="mt-12 py-8 text-center text-xs text-gray-500 space-y-2 border-t border-pink-100">
+    <p class="font-cute text-sm text-pink-600 font-bold">
+      Made with endless love & soft cuddles ❤️
+    </p>
+    <p>
+      Drink water • Take your medicine • Stay bundled up
+    </p>
+  </footer>
+
+
+  <!-- MODAL: PERSONALIZE NAMES & LETTER -->
+  <div id="personalize-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="clay-card w-full max-w-lg p-6 sm:p-8 space-y-5 bg-white relative animate-floaty" style="animation-duration: 0s;">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-cute text-xl font-bold text-gray-800 flex items-center gap-2">
+          <span>✏️</span> Personalize For Her
+        </h3>
+        <button id="close-personalize-btn" class="text-gray-400 hover:text-gray-700 text-xl font-bold">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Her Name or Nickname:</label>
+          <input type="text" id="input-girlfriend-name" class="w-full px-3 py-2 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="e.g. My Sweetest Girl, Emma, Cutie">
+        </div>
+
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Your Name or Nickname:</label>
+          <input type="text" id="input-boyfriend-name" class="w-full px-3 py-2 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="e.g. The Monkey 🐒">
+        </div>
+
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Personal Message in Letter:</label>
+          <textarea id="input-letter-body" rows="4" class="w-full px-3 py-2 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Write custom sweet words for her..."></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancel-personalize-btn" class="clay-btn-secondary px-4 py-2 text-xs font-bold">Cancel</button>
+        <button id="save-personalize-btn" class="clay-btn px-5 py-2 text-xs font-bold">Save Changes ✨</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- AUDIO AMBIENT CONTROLLER PANEL (EXPANDABLE) -->
+  <div id="audio-panel" class="fixed bottom-4 right-4 z-40 clay-card p-4 max-w-xs w-full hidden shadow-2xl space-y-3">
+    <div class="flex items-center justify-between border-b pb-2">
+      <span class="font-cute text-xs font-bold text-pink-600 flex items-center gap-1">
+        <span>🎶</span> Cozy Sound Generator
+      </span>
+      <button id="close-audio-panel-btn" class="text-gray-400 hover:text-gray-700 text-xs">✕</button>
+    </div>
+
+    <!-- Sound options -->
+    <div class="space-y-2 text-xs">
+      <div class="flex items-center justify-between">
+        <span>🌧️ Gentle Window Rain</span>
+        <button id="toggle-rain-btn" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-300 bg-pink-50 text-pink-700">Turn On</button>
+      </div>
+      <div class="flex items-center justify-between">
+        <span>🎵 Calming Music Box</span>
+        <button id="toggle-music-btn" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-300 bg-pink-50 text-pink-700">Turn On</button>
+      </div>
+    </div>
+
+    <div class="pt-1">
+      <label class="text-[10px] font-bold text-gray-500 block mb-0.5">Master Volume</label>
+      <input type="range" id="master-vol-slider" min="0" max="1" step="0.05" value="0.5" class="w-full h-1 bg-pink-200 rounded-lg cursor-pointer">
+    </div>
+  </div>
+
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* ==========================================================
+       1. STATE MANAGEMENT & LOCAL STORAGE
+       ========================================================== */
+    const state = {
+      girlfriendName: 'My Sweetest Girl',
+      boyfriendName: 'The Monkey 🐒',
+      letterBody: `I wish more than anything that I had a magic wand to zap away your headache, chills, sniffles, and tiredness right this second. Since I can't wave a wand, I built this cozy space to wrap you in love.\n\nPlease take this as your official permission slip: you don't have to be productive today. The world can wait. Your only job right now is curling into your softest blankets, sipping warm liquids, and letting your wonderful body heal.\n\nWhenever you're ready, I am on standby for hot soup deliveries, tucking you in, quiet movie marathons, forehead kisses, or just sitting silently beside you while you nap.\n\nYou are the strongest, sweetest, and most gorgeous person in my entire world — even when your nose is red and your hair is a wild bed-head mess. I love you endlessly.`,
+      lovePercent: 1000,
+      isLetterOpen: false,
+      hasBlanket: false,
+      hasTea: false
+    };
+
+    // Load saved settings
+    try {
+      const saved = localStorage.getItem('cozy_corner_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.girlfriendName) state.girlfriendName = parsed.girlfriendName;
+        if (parsed.boyfriendName) state.boyfriendName = parsed.boyfriendName;
+        if (parsed.letterBody) state.letterBody = parsed.letterBody;
+      }
+    } catch (e) {
+      console.warn('Storage unavailable', e);
+    }
+
+    function updateDOMText() {
+      document.getElementById('display-girlfriend-name').textContent = state.girlfriendName;
+      document.getElementById('envelope-to-name').textContent = state.girlfriendName;
+      document.getElementById('letter-recipient-name').textContent = state.girlfriendName;
+      document.getElementById('letter-sender-name').textContent = state.boyfriendName;
+      
+      // Update letter body
+      const paragraphs = state.letterBody.split('\n\n').filter(p => p.trim().length > 0);
+      const letterBodyContainer = document.getElementById('letter-body-text');
+      letterBodyContainer.innerHTML = '';
+      paragraphs.forEach(para => {
+        const p = document.createElement('p');
+        p.textContent = para;
+        letterBodyContainer.appendChild(p);
+      });
+    }
+
+    updateDOMText();
+
+    /* ==========================================================
+       2. THREE.JS 3D COZY BEAR COMPANION
+       ========================================================== */
+    let scene, camera, renderer, bearGroup, headGroup, earsGroup, blanketMesh, teaMesh;
+    let cheeks = [];
+    let sparkles = [];
+    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    let clock = new THREE.Clock();
+
+    function init3D() {
+      const container = document.getElementById('threejs-canvas-container');
+      const width = container.clientWidth || 380;
+      const height = container.clientHeight || 360;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      camera.position.set(0, 1.2, 4.8);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // Warm lighting
+      const ambientLight = new THREE.AmbientLight(0xfff1f2, 1.2);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffedd5, 1.0);
+      dirLight.position.set(3, 5, 4);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const fillLight = new THREE.PointLight(0xf472b6, 0.8, 10);
+      fillLight.position.set(-3, 2, 2);
+      scene.add(fillLight);
+
+      // Bear Parent Group
+      bearGroup = new THREE.Group();
+      bearGroup.position.set(0, -0.4, 0);
+      scene.add(bearGroup);
+
+      // Materials
+      const furMaterial = new THREE.MeshToonMaterial({ color: 0xe6b89c });
+      const muzzleMaterial = new THREE.MeshToonMaterial({ color: 0xffedd8 });
+      const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x3e2723 });
+      const blushMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b81 });
+      const scarfMaterial = new THREE.MeshToonMaterial({ color: 0xf43f5e });
+
+      // Body
+      const bodyGeo = new THREE.SphereGeometry(0.85, 32, 32);
+      bodyGeo.scale(1, 1.15, 0.95);
+      const bodyMesh = new THREE.Mesh(bodyGeo, furMaterial);
+      bodyMesh.position.y = 0.5;
+      bearGroup.add(bodyMesh);
+
+      // Tummy Patch
+      const tummyGeo = new THREE.SphereGeometry(0.55, 24, 24);
+      tummyGeo.scale(0.85, 1.0, 0.3);
+      const tummyMesh = new THREE.Mesh(tummyGeo, muzzleMaterial);
+      tummyMesh.position.set(0, 0.5, 0.72);
+      bearGroup.add(tummyMesh);
+
+      // Head Group (for independent tilting/tracking)
+      headGroup = new THREE.Group();
+      headGroup.position.set(0, 1.6, 0.1);
+      bearGroup.add(headGroup);
+
+      // Head Mesh
+      const headGeo = new THREE.SphereGeometry(0.72, 32, 32);
+      const headMesh = new THREE.Mesh(headGeo, furMaterial);
+      headGroup.add(headMesh);
+
+      // Snout / Muzzle
+      const snoutGeo = new THREE.SphereGeometry(0.28, 24, 24);
+      snoutGeo.scale(1.2, 0.9, 0.8);
+      const snoutMesh = new THREE.Mesh(snoutGeo, muzzleMaterial);
+      snoutMesh.position.set(0, -0.1, 0.6);
+      headGroup.add(snoutMesh);
+
+      // Nose
+      const noseGeo = new THREE.SphereGeometry(0.08, 16, 16);
+      const noseMesh = new THREE.Mesh(noseGeo, darkMaterial);
+      noseMesh.position.set(0, -0.04, 0.82);
+      headGroup.add(noseMesh);
+
+      // Eyes with shiny reflection
+      const eyeGeo = new THREE.SphereGeometry(0.065, 16, 16);
+      const leftEye = new THREE.Mesh(eyeGeo, darkMaterial);
+      leftEye.position.set(-0.24, 0.08, 0.64);
+      const rightEye = new THREE.Mesh(eyeGeo, darkMaterial);
+      rightEye.position.set(0.24, 0.08, 0.64);
+      headGroup.add(leftEye);
+      headGroup.add(rightEye);
+
+      // Rosy Cheeks
+      const cheekGeo = new THREE.SphereGeometry(0.12, 16, 16);
+      cheekGeo.scale(1.2, 0.7, 0.3);
+      const leftCheek = new THREE.Mesh(cheekGeo, blushMaterial);
+      leftCheek.position.set(-0.4, -0.12, 0.58);
+      const rightCheek = new THREE.Mesh(cheekGeo, blushMaterial);
+      rightCheek.position.set(0.4, -0.12, 0.58);
+      headGroup.add(leftCheek);
+      headGroup.add(rightCheek);
+      cheeks.push(leftCheek, rightCheek);
+
+      // Ears
+      earsGroup = new THREE.Group();
+      const earOuterGeo = new THREE.SphereGeometry(0.24, 24, 24);
+      const earInnerGeo = new THREE.SphereGeometry(0.15, 16, 16);
+
+      const leftEar = new THREE.Mesh(earOuterGeo, furMaterial);
+      leftEar.position.set(-0.55, 0.6, 0);
+      const leftEarInner = new THREE.Mesh(earInnerGeo, blushMaterial);
+      leftEarInner.position.set(-0.55, 0.6, 0.1);
+
+      const rightEar = new THREE.Mesh(earOuterGeo, furMaterial);
+      rightEar.position.set(0.55, 0.6, 0);
+      const rightEarInner = new THREE.Mesh(earInnerGeo, blushMaterial);
+      rightEarInner.position.set(0.55, 0.6, 0.1);
+
+      earsGroup.add(leftEar, leftEarInner, rightEar, rightEarInner);
+      headGroup.add(earsGroup);
+
+      // Cozy Scarf
+      const scarfGeo = new THREE.TorusGeometry(0.55, 0.14, 16, 32);
+      scarfGeo.rotateX(Math.PI / 2);
+      const scarfMesh = new THREE.Mesh(scarfGeo, scarfMaterial);
+      scarfMesh.position.set(0, 0.98, 0.05);
+      bearGroup.add(scarfMesh);
+
+      // Cozy Blanket Mesh (Toggled via button)
+      const blanketGeo = new THREE.CylinderGeometry(0.95, 1.1, 1.0, 32, 1, true, 0, Math.PI * 1.5);
+      const blanketMat = new THREE.MeshToonMaterial({ color: 0xfbcfe8, side: THREE.DoubleSide });
+      blanketMesh = new THREE.Mesh(blanketGeo, blanketMat);
+      blanketMesh.position.set(0, 0.45, 0);
+      blanketMesh.rotation.y = Math.PI * 0.75;
+      blanketMesh.visible = false;
+      bearGroup.add(blanketMesh);
+
+      // Steaming Tea Cup Mesh (Toggled via button)
+      const teaGroup = new THREE.Group();
+      const cupGeo = new THREE.CylinderGeometry(0.18, 0.14, 0.3, 16);
+      const cupMat = new THREE.MeshToonMaterial({ color: 0xffffff });
+      const cupMesh = new THREE.Mesh(cupGeo, cupMat);
+      teaGroup.add(cupMesh);
+      teaGroup.position.set(0.55, 0.4, 0.7);
+      teaMesh = teaGroup;
+      teaMesh.visible = false;
+      bearGroup.add(teaMesh);
+
+      // Soft Cloud Pedestal
+      const cloudGroup = new THREE.Group();
+      const cloudMat = new THREE.MeshToonMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+      for (let i = 0; i < 7; i++) {
+        const cloudPart = new THREE.Mesh(new THREE.SphereGeometry(0.45 + Math.random() * 0.25, 16, 16), cloudMat);
+        cloudPart.position.set(
+          (Math.random() - 0.5) * 1.8,
+          -0.5 + (Math.random() - 0.5) * 0.2,
+          (Math.random() - 0.5) * 1.2
+        );
+        cloudGroup.add(cloudPart);
+      }
+      bearGroup.add(cloudGroup);
+
+      // Orbiting Sparkles and Floating Mini Hearts
+      const sparkleGeo = new THREE.SphereGeometry(0.045, 8, 8);
+      const heartMat = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+      const goldMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+
+      for (let i = 0; i < 18; i++) {
+        const mat = i % 2 === 0 ? heartMat : goldMat;
+        const sp = new THREE.Mesh(sparkleGeo, mat);
+        sp.userData = {
+          radius: 1.3 + Math.random() * 1.2,
+          speed: 0.5 + Math.random() * 0.8,
+          angle: Math.random() * Math.PI * 2,
+          height: (Math.random() - 0.3) * 2.5
+        };
+        scene.add(sp);
+        sparkles.push(sp);
+      }
+
+      // Mouse move listener for head tracking
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouse.targetX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.targetY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      });
+
+      // Touch move listener for mobile
+      container.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+          const rect = container.getBoundingClientRect();
+          mouse.targetX = ((e.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
+          mouse.targetY = -((e.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
+        }
+      }, { passive: true });
+
+      // Click on 3D Container
+      container.addEventListener('click', () => {
+        triggerBearBounce('Bear is purring happily! 🧸✨');
+      });
+
+      // Window resize
+      window.addEventListener('resize', onWindowResize);
+
+      // Start animation loop
+      animate();
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('threejs-canvas-container');
+      if (!container || !renderer || !camera) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    let jumpVelocity = 0;
+    let jumpY = 0;
+
+    function triggerBearBounce(message) {
+      jumpVelocity = 0.08;
+      playCuteChime();
+      fireConfetti(0.5, 0.35);
+      showBearToast(message);
+    }
+
+    function showBearToast(msg) {
+      const el = document.getElementById('bear-reaction-toast');
+      el.textContent = msg;
+      el.classList.add('text-rose-600', 'font-bold');
+      setTimeout(() => {
+        el.textContent = 'Tap Dr. Cuddle or click a button to cheer him up! 💖';
+        el.classList.remove('font-bold');
+      }, 3500);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
+
+      // Smooth mouse lerping
+      mouse.x += (mouse.targetX - mouse.x) * 0.06;
+      mouse.y += (mouse.targetY - mouse.y) * 0.06;
+
+      // Head tracking
+      if (headGroup) {
+        headGroup.rotation.y = mouse.x * 0.55;
+        headGroup.rotation.x = -mouse.y * 0.35;
+      }
+
+      // Idle breathing and hovering
+      if (bearGroup) {
+        // Jump physics
+        if (jumpVelocity !== 0 || jumpY > 0) {
+          jumpY += jumpVelocity;
+          jumpVelocity -= 0.005;
+          if (jumpY <= 0) {
+            jumpY = 0;
+            jumpVelocity = 0;
+          }
+        }
+
+        bearGroup.position.y = -0.4 + Math.sin(time * 2.2) * 0.04 + jumpY;
+        bearGroup.rotation.y = Math.sin(time * 1.2) * 0.08;
+      }
+
+      // Cute ear wiggle
+      if (earsGroup) {
+        earsGroup.rotation.z = Math.sin(time * 4) * 0.03;
+      }
+
+      // Cheeks pulse glow
+      cheeks.forEach(c => {
+        c.scale.setScalar(1.0 + Math.sin(time * 3) * 0.15);
+      });
+
+      // Orbiting sparkles
+      sparkles.forEach(sp => {
+        const u = sp.userData;
+        u.angle += u.speed * 0.015;
+        sp.position.x = Math.cos(u.angle) * u.radius;
+        sp.position.z = Math.sin(u.angle) * u.radius;
+        sp.position.y = u.height + Math.sin(time * 3 + u.angle) * 0.2;
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    // Initialize 3D when DOM is ready
+    window.addEventListener('DOMContentLoaded', () => {
+      init3D();
+    });
+
+
+    /* ==========================================================
+       3. INTERACTIVE 3D COMPANION BUTTONS
+       ========================================================== */
+    document.getElementById('btn-give-kiss').addEventListener('click', () => {
+      triggerBearBounce('Mwah! 💋 A warm kiss right on Dr. Cuddle’s forehead!');
+      state.lovePercent += 100;
+      document.getElementById('love-meter-val').textContent = state.lovePercent + '%';
+    });
+
+    document.getElementById('btn-tuck-blanket').addEventListener('click', () => {
+      state.hasBlanket = !state.hasBlanket;
+      if (blanketMesh) blanketMesh.visible = state.hasBlanket;
+      const btn = document.getElementById('btn-tuck-blanket');
+      if (state.hasBlanket) {
+        btn.classList.add('bg-pink-200', 'text-pink-800');
+        triggerBearBounce('Dr. Cuddle is now safely tucked under the plush blanket! 🛌💤');
+      } else {
+        btn.classList.remove('bg-pink-200', 'text-pink-800');
+        showBearToast('Blanket set aside for easy cuddles! ✨');
+      }
+    });
+
+    document.getElementById('btn-serve-tea').addEventListener('click', () => {
+      state.hasTea = !state.hasTea;
+      if (teaMesh) teaMesh.visible = state.hasTea;
+      const btn = document.getElementById('btn-serve-tea');
+      if (state.hasTea) {
+        btn.classList.add('bg-pink-200', 'text-pink-800');
+        triggerBearBounce('Steaming honey-chamomile tea served! 🍵✨');
+      } else {
+        btn.classList.remove('bg-pink-200', 'text-pink-800');
+        showBearToast('Cup finished! More tea whenever you want! ☕');
+      }
+    });
+
+    document.getElementById('btn-tickle').addEventListener('click', () => {
+      if (bearGroup) bearGroup.rotation.z = 0.15;
+      setTimeout(() => { if (bearGroup) bearGroup.rotation.z = -0.15; }, 100);
+      setTimeout(() => { if (bearGroup) bearGroup.rotation.z = 0; }, 200);
+      triggerBearBounce('Giggles! Dr. Cuddle is super ticklish! 🤭💖');
+    });
+
+    document.getElementById('canvas-heart-burst').addEventListener('click', () => {
+      triggerBearBounce('Heart storm released! 💕');
+    });
+
+
+    /* ==========================================================
+       4. 3D ENVELOPE & LOVE LETTER LOGIC
+       ========================================================== */
+    const waxSealBtn = document.getElementById('wax-seal-btn');
+    const envelopeTopFlap = document.getElementById('envelope-top-flap');
+    const envelopeSealedState = document.getElementById('envelope-sealed-state');
+    const letterUnfoldedState = document.getElementById('letter-unfolded-state');
+    const btnFoldLetter = document.getElementById('btn-fold-letter');
+    const btnCopyLetter = document.getElementById('btn-copy-letter');
+
+    waxSealBtn.addEventListener('click', openLetter);
+
+    function openLetter() {
+      // 1. Play paper unfold chime
+      playCuteChime();
+      
+      // 2. Rotate envelope flap open
+      envelopeTopFlap.style.transform = 'rotateX(180deg)';
+      envelopeTopFlap.style.zIndex = '1';
+      waxSealBtn.style.opacity = '0';
+
+      // 3. Fire confetti
+      fireConfetti(0.5, 0.6);
+
+      // 4. Slide out and reveal unfolded letter
+      setTimeout(() => {
+        envelopeSealedState.classList.add('hidden');
+        letterUnfoldedState.classList.remove('hidden');
+        letterUnfoldedState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 700);
+    }
+
+    btnFoldLetter.addEventListener('click', () => {
+      playCuteChime();
+      letterUnfoldedState.classList.add('hidden');
+      envelopeSealedState.classList.remove('hidden');
+      envelopeTopFlap.style.transform = 'rotateX(0deg)';
+      envelopeTopFlap.style.zIndex = '10';
+      waxSealBtn.style.opacity = '1';
+      envelopeSealedState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    btnCopyLetter.addEventListener('click', () => {
+      const fullText = `Dearest ${state.girlfriendName},\n\n${state.letterBody}\n\n${state.boyfriendName}`;
+      try {
+        navigator.clipboard.writeText(fullText).then(() => {
+          btnCopyLetter.textContent = '✅ Copied!';
+          setTimeout(() => { btnCopyLetter.textContent = '📋 Copy Note'; }, 2000);
+        });
+      } catch (err) {
+        const dummy = document.createElement('textarea');
+        dummy.value = fullText;
+        document.body.appendChild(dummy);
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        btnCopyLetter.textContent = '✅ Copied!';
+        setTimeout(() => { btnCopyLetter.textContent = '📋 Copy Note'; }, 2000);
+      }
+    });
+
+
+    /* ==========================================================
+       5. INTERACTIVE CARE PACKAGE STATIONS
+       ========================================================== */
+
+    // Station 1: The Warm Hug Simulator (Hold-to-charge)
+    const hugBtn = document.getElementById('hug-hold-btn');
+    const hugProgressCircle = document.getElementById('hug-progress-circle');
+    const hugStatusText = document.getElementById('hug-status-text');
+    const hugHeartIcon = document.getElementById('hug-heart-icon');
+    let hugInterval = null;
+    let hugProgress = 0;
+    const maxDash = 390;
+
+    function startHugCharge() {
+      if (hugInterval) clearInterval(hugInterval);
+      hugProgress = 0;
+      hugHeartIcon.classList.add('scale-125');
+      hugStatusText.textContent = 'Holding tight... delivering warm embrace! 🫂';
+      
+      hugInterval = setInterval(() => {
+        hugProgress += 4;
+        const offset = maxDash - (hugProgress / 100) * maxDash;
+        hugProgressCircle.style.strokeDashoffset = offset;
+
+        if (hugProgress >= 100) {
+          clearInterval(hugInterval);
+          hugProgress = 100;
+          hugStatusText.textContent = '💖 HUG 100% DELIVERED TO YOUR HEART!';
+          if (typeof addDbEntry === 'function') {
+            addDbEntry('care', '10-Second Warm Hug Received', 'Received a full warm embrace to the heart! 🫂');
+          }
+          fireConfetti(0.3, 0.7);
+          playCuteChime();
+          state.lovePercent += 500;
+          document.getElementById('love-meter-val').textContent = state.lovePercent + '%';
+        }
+      }, 50);
+    }
+
+    function cancelHugCharge() {
+      if (hugProgress < 100) {
+        clearInterval(hugInterval);
+        hugProgress = 0;
+        hugProgressCircle.style.strokeDashoffset = maxDash;
+        hugHeartIcon.classList.remove('scale-125');
+        hugStatusText.textContent = 'Hold for 3 seconds to complete the hug!';
+      }
+    }
+
+    hugBtn.addEventListener('mousedown', startHugCharge);
+    hugBtn.addEventListener('mouseup', cancelHugCharge);
+    hugBtn.addEventListener('mouseleave', cancelHugCharge);
+    hugBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startHugCharge(); }, { passive: false });
+    hugBtn.addEventListener('touchend', cancelHugCharge);
+
+
+    // Station 2: Sweet Medicine Dispenser
+    const pills = [
+      { title: 'Vitamin L (Love)', text: '"You are cute when you are healthy, and honestly just as cute bundled up like a human sushi roll."' },
+      { title: 'Vitamin C (Cuddles)', text: '"Prescription: 45 minutes of non-stop cuddles with your head on my chest."' },
+      { title: 'Vitamin Z (Rest)', text: '"You are officially exempt from all chores, adulting, and answering emails today."' },
+      { title: 'Vitamin K (Kisses)', text: '"Unlimited forehead, nose, and cheek kisses coupon — redeemable on demand."' },
+      { title: 'Vitamin S (Soup)', text: '"One steaming bowl of delicious warm comfort, made with extra care."' },
+      { title: 'Vitamin N (Netflix)', text: '"You get to pick whatever show we binge, even the reality TV I pretend not to like!"' },
+      { title: 'Vitamin H (Hydration)', text: '"Take two deep breaths and one big sip of fresh water right now! 💧"' }
+    ];
+    let pillIdx = 0;
+
+    document.getElementById('btn-dispense-pill').addEventListener('click', () => {
+      pillIdx = (pillIdx + 1) % pills.length;
+      const p = pills[pillIdx];
+      const titleEl = document.getElementById('pill-title');
+      const textEl = document.getElementById('pill-content');
+      
+      titleEl.textContent = p.title;
+      textEl.textContent = p.text;
+      playCuteChime();
+      fireConfetti(0.7, 0.7);
+    });
+
+
+    // Station 3: Custom Brew Kitchen
+    let selectedBase = 'Chamomile Flower Tea 🌼';
+    let selectedAddons = [];
+
+    document.querySelectorAll('.brew-base-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.brew-base-btn').forEach(b => {
+          b.classList.remove('bg-pink-50', 'text-pink-700', 'border-pink-200');
+          b.classList.add('bg-white', 'text-gray-600');
+        });
+        btn.classList.add('bg-pink-50', 'text-pink-700', 'border-pink-200');
+        btn.classList.remove('bg-white', 'text-gray-600');
+        selectedBase = btn.getAttribute('data-base');
+        updateBrewPreview();
+      });
+    });
+
+    document.querySelectorAll('.brew-addon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const addon = btn.getAttribute('data-addon');
+        if (selectedAddons.includes(addon)) {
+          selectedAddons = selectedAddons.filter(a => a !== addon);
+          btn.classList.remove('bg-pink-100', 'text-pink-800', 'border-pink-300');
+          btn.classList.add('bg-white', 'text-gray-600');
+        } else {
+          selectedAddons.push(addon);
+          btn.classList.add('bg-pink-100', 'text-pink-800', 'border-pink-300');
+          btn.classList.remove('bg-white', 'text-gray-600');
+        }
+        updateBrewPreview();
+      });
+    });
+
+    function updateBrewPreview() {
+      const box = document.getElementById('brew-result-box');
+      const addonsStr = selectedAddons.length > 0 ? ' infused with ' + selectedAddons.join(', ') : '';
+      box.textContent = `Ready to brew: ${selectedBase}${addonsStr}!`;
+    }
+
+    document.getElementById('btn-brew-drink').addEventListener('click', () => {
+      const box = document.getElementById('brew-result-box');
+      box.textContent = `☕ Fresh hot cup of ${selectedBase} freshly delivered to your bedside with infinite love!`;
+      if (typeof addDbEntry === 'function') {
+        const addonsStr = selectedAddons.length > 0 ? ' infused with ' + selectedAddons.join(', ') : '';
+        addDbEntry('care', 'Cozy Brew Delivered', selectedBase + addonsStr);
+      }
+      playCuteChime();
+      fireConfetti(0.3, 0.8);
+    });
+
+
+    // Station 4: Scratch / Tap VIP Coupons
+    document.querySelectorAll('.coupon-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const text = card.getAttribute('data-coupon');
+        const msgEl = document.getElementById('coupon-redeem-msg');
+        msgEl.textContent = `🎟️ ${text}`;
+        if (typeof addDbEntry === 'function') {
+          addDbEntry('coupon', 'VIP Coupon Redeemed', text);
+        }
+        card.classList.add('border-emerald-400', 'bg-emerald-50');
+        playCuteChime();
+        fireConfetti(0.7, 0.85);
+      });
+    });
+
+
+    /* ==========================================================
+       6. MOOD & SYMPTOM CHECK-IN LOGIC
+       ========================================================== */
+    const moodAdvice = {
+      sleepy: {
+        title: 'Prescription: High-Priority Nap Time 🛌',
+        body: 'Close your eyes without feeling guilty for a second. Sleep is literally your body rebuilding its superhero defense system. Turn off all lights and sweet dreams!'
+      },
+      fever: {
+        title: 'Prescription: Cool Cloth & Cold Sips 🧊',
+        body: 'Place a cool, damp cloth gently across your forehead. Sip water or electrolyte tea every 10 minutes. Dr. Cuddle is waving cool breezes your way!'
+      },
+      sniffly: {
+        title: 'Prescription: Steam & Warm Blankets 🍵',
+        body: 'Breathe in the warm herbal steam from your hot mug. Prop your pillow up with two extra pillows so you can breathe easier. I will bring tissues!'
+      },
+      moody: {
+        title: 'Prescription: 100% Validation & Love 🥺',
+        body: 'Being sick is so frustrating and draining! It is completely okay to feel cranky, sensitive, or emotional today. You are so loved and I am right here.'
+      },
+      better: {
+        title: 'Prescription: Gentle Celebration 🌸',
+        body: 'Yay! That makes my entire day brighter! Do not rush back into hard work just yet though — take it slow and steady, my champion!'
+      }
+    };
+
+    document.querySelectorAll('.mood-check-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mood = btn.getAttribute('data-mood');
+        const advice = moodAdvice[mood];
+        if (advice) {
+          document.getElementById('mood-response-title').textContent = advice.title;
+          document.getElementById('mood-response-body').textContent = advice.body;
+          if (typeof addDbEntry === 'function') {
+            addDbEntry('mood', 'Mood Check: ' + mood, advice.title);
+          }
+          playCuteChime();
+        }
+      });
+    });
+
+
+    /* ==========================================================
+       7. STARRY WISHING JAR
+       ========================================================== */
+    document.querySelectorAll('.star-wish-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wish = btn.getAttribute('data-wish');
+        const display = document.getElementById('star-wish-display');
+        display.textContent = wish;
+        playCuteChime();
+        btn.classList.add('animate-bounce');
+        setTimeout(() => btn.classList.remove('animate-bounce'), 1000);
+      });
+    });
+
+
+    /* ==========================================================
+       8. PERSONALIZE MODAL LOGIC
+       ========================================================== */
+    const modal = document.getElementById('personalize-modal');
+    const openBtn = document.getElementById('open-personalize-btn');
+    const closeBtn = document.getElementById('close-personalize-btn');
+    const cancelBtn = document.getElementById('cancel-personalize-btn');
+    const saveBtn = document.getElementById('save-personalize-btn');
+
+    openBtn.addEventListener('click', () => {
+      document.getElementById('input-girlfriend-name').value = state.girlfriendName;
+      document.getElementById('input-boyfriend-name').value = state.boyfriendName;
+      document.getElementById('input-letter-body').value = state.letterBody;
+      modal.classList.remove('hidden');
+    });
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    saveBtn.addEventListener('click', () => {
+      const gName = document.getElementById('input-girlfriend-name').value.trim();
+      const bName = document.getElementById('input-boyfriend-name').value.trim();
+      const body = document.getElementById('input-letter-body').value.trim();
+
+      if (gName) state.girlfriendName = gName;
+      if (bName) state.boyfriendName = bName;
+      if (body) state.letterBody = body;
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('cozy_corner_settings', JSON.stringify({
+          girlfriendName: state.girlfriendName,
+          boyfriendName: state.boyfriendName,
+          letterBody: state.letterBody
+        }));
+      } catch (e) {
+        console.warn(e);
+      }
+
+      updateDOMText();
+      closeModal();
+      playCuteChime();
+      fireConfetti(0.5, 0.5);
+    });
+
+
+    /* ==========================================================
+       9. SYNTHESIZED WEB AUDIO (PROCEDURAL SOUNDSCAPES)
+       ========================================================== */
+    let audioCtx = null;
+    let masterGain = null;
+    let rainNode = null;
+    let musicInterval = null;
+    let isRainPlaying = false;
+    let isMusicPlaying = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.5;
+        masterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // Cute Pentatonic chime generator
+    function playCuteChime() {
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.08);
+
+          gain.gain.setValueAtTime(0.12, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.6);
+
+          osc.connect(gain);
+          gain.connect(masterGain);
+
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.65);
+        });
+      } catch (err) {
+        // Audio might be blocked before user gesture
+      }
+    }
+
+    // Audio panel toggle
+    const audioToggleBtn = document.getElementById('audio-toggle-btn');
+    const audioPanel = document.getElementById('audio-panel');
+    const closeAudioPanelBtn = document.getElementById('close-audio-panel-btn');
+
+    audioToggleBtn.addEventListener('click', () => {
+      initAudio();
+      audioPanel.classList.toggle('hidden');
+    });
+
+    closeAudioPanelBtn.addEventListener('click', () => {
+      audioPanel.classList.add('hidden');
+    });
+
+    // Master volume slider
+    document.getElementById('master-vol-slider').addEventListener('input', (e) => {
+      if (masterGain) {
+        masterGain.gain.value = parseFloat(e.target.value);
+      }
+    });
+
+    // Gentle rain generator (Filtered White/Pink Noise)
+    const toggleRainBtn = document.getElementById('toggle-rain-btn');
+    toggleRainBtn.addEventListener('click', () => {
+      initAudio();
+      if (!isRainPlaying) {
+        const bufferSize = 2 * audioCtx.sampleRate;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          output[i] = (b0 + b1 + b2) * 0.11;
+        }
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 850;
+
+        const rainGain = audioCtx.createGain();
+        rainGain.gain.value = 0.35;
+
+        whiteNoise.connect(filter);
+        filter.connect(rainGain);
+        rainGain.connect(masterGain);
+
+        whiteNoise.start();
+        rainNode = { source: whiteNoise, gain: rainGain };
+        isRainPlaying = true;
+        toggleRainBtn.textContent = 'Turn Off';
+        toggleRainBtn.classList.replace('bg-pink-50', 'bg-pink-200');
+      } else {
+        if (rainNode) {
+          rainNode.source.stop();
+          rainNode = null;
+        }
+        isRainPlaying = false;
+        toggleRainBtn.textContent = 'Turn On';
+        toggleRainBtn.classList.replace('bg-pink-200', 'bg-pink-50');
+      }
+    });
+
+    // Calming Music Box Generator (Procedural lullaby)
+    const toggleMusicBtn = document.getElementById('toggle-music-btn');
+    toggleMusicBtn.addEventListener('click', () => {
+      initAudio();
+      if (!isMusicPlaying) {
+        isMusicPlaying = true;
+        toggleMusicBtn.textContent = 'Turn Off';
+        toggleMusicBtn.classList.replace('bg-pink-50', 'bg-pink-200');
+
+        const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+        musicInterval = setInterval(() => {
+          if (!isMusicPlaying) return;
+          const note = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const now = audioCtx.currentTime;
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(note, now);
+
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+          osc.connect(gain);
+          gain.connect(masterGain);
+
+          osc.start(now);
+          osc.stop(now + 1.25);
+        }, 650);
+      } else {
+        isMusicPlaying = false;
+        clearInterval(musicInterval);
+        musicInterval = null;
+        toggleMusicBtn.textContent = 'Turn On';
+        toggleMusicBtn.classList.replace('bg-pink-200', 'bg-pink-50');
+      }
+    });
+
+    
+    /* ==========================================================
+       9B. SEVENTEEN COZY HEALING JUKEBOX LOGIC
+       ========================================================== */
+    const svtTracks = [
+      {
+        title: "Oh My! (어쩌나) — SEVENTEEN",
+        badge: "Cute Heart-Flutter 🌸",
+        ytQuery: "SEVENTEEN+Oh+My+Music+Video",
+        tip: "💡 <strong>Why this helps you feel better:</strong> 'Oh My!' is SEVENTEEN's most heart-fluttering, joyful confession song — guaranteed to bring an instant smile to your face!",
+        lines: [
+          { kor: "어쩌나 어쩌나 그대를 어쩌나~", rom: "Eojjeona eojjeona geudaereul eojjeona~", eng: "What should I do, what should I do? You make my heart flutter so much!" },
+          { kor: "너 때문에 난 이제 어쩌나!", rom: "Neo ttaemune nan ije eojjeona!", eng: "My heart is overflowing with you, what am I going to do!" },
+          { kor: "하루 종일 너만 보여, 내 맘을 어쩌나~", rom: "Haru jong-il neoman boyeo, nae mameul eojjeona~", eng: "All day long you're all I see, how can I stop smiling?" }
+        ],
+        melody: [
+          { f: 392.00, d: 0.32, bass: 196.00, lineIdx: 0 },
+          { f: 493.88, d: 0.32, bass: 196.00, lineIdx: 0 },
+          { f: 587.33, d: 0.48, bass: 146.83, lineIdx: 0 },
+          { f: 659.25, d: 0.32, bass: 164.81, lineIdx: 0 },
+          { f: 587.33, d: 0.32, bass: 164.81, lineIdx: 0 },
+          { f: 523.25, d: 0.32, bass: 130.81, lineIdx: 1 },
+          { f: 493.88, d: 0.40, bass: 130.81, lineIdx: 1 },
+          { f: 440.00, d: 0.32, bass: 146.83, lineIdx: 1 },
+          { f: 392.00, d: 0.55, bass: 196.00, lineIdx: 1 },
+          { f: 440.00, d: 0.30, bass: 146.83, lineIdx: 2 },
+          { f: 493.88, d: 0.30, bass: 146.83, lineIdx: 2 },
+          { f: 523.25, d: 0.30, bass: 130.81, lineIdx: 2 },
+          { f: 587.33, d: 0.45, bass: 146.83, lineIdx: 2 },
+          { f: 392.00, d: 0.70, bass: 196.00, lineIdx: 2 }
+        ]
+      },
+      {
+        title: "Snap Shoot — SEVENTEEN",
+        badge: "Playful Sunshine & Smiles 📸",
+        ytQuery: "SEVENTEEN+Snap+Shoot+Special+Video",
+        tip: "💡 <strong>Why this helps you feel better:</strong> Super energetic, sweet aegyo rhythm to remind you that even sick in bed, your smile is completely precious!",
+        lines: [
+          { kor: "Snap shoot! 하나 둘 웃어봐 스마일~", rom: "Snap shoot! Hana dul useobwa seumail~", eng: "Snap shoot! One, two, let me see that smile!" },
+          { kor: "지금 이 순간, 네 예쁜 모습 담아둘래", rom: "Jigeum i sungan, ne yeppeun moseup damadullae", eng: "Right now, I want to capture every cute memory of you." },
+          { kor: "찰칵! 넌 언제나 내 최고의 스타야", rom: "Chalkak! Neon eonjena nae choegoui seutaya", eng: "Click! You are always my shining superstar." }
+        ],
+        melody: [
+          { f: 523.25, d: 0.22, bass: 261.63, lineIdx: 0 },
+          { f: 523.25, d: 0.22, bass: 261.63, lineIdx: 0 },
+          { f: 659.25, d: 0.25, bass: 329.63, lineIdx: 0 },
+          { f: 783.99, d: 0.42, bass: 392.00, lineIdx: 0 },
+          { f: 880.00, d: 0.26, bass: 220.00, lineIdx: 1 },
+          { f: 783.99, d: 0.26, bass: 196.00, lineIdx: 1 },
+          { f: 659.25, d: 0.30, bass: 164.81, lineIdx: 1 },
+          { f: 523.25, d: 0.45, bass: 130.81, lineIdx: 1 },
+          { f: 587.33, d: 0.25, bass: 146.83, lineIdx: 2 },
+          { f: 659.25, d: 0.25, bass: 164.81, lineIdx: 2 },
+          { f: 783.99, d: 0.35, bass: 196.00, lineIdx: 2 },
+          { f: 1046.50, d: 0.65, bass: 261.63, lineIdx: 2 }
+        ]
+      },
+      {
+        title: "Healing (힐링) — SEVENTEEN",
+        badge: "Official Rest & Get-Well Song 🩹",
+        ytQuery: "SEVENTEEN+Healing+Music+Video",
+        tip: "💡 <strong>Why this helps you feel better:</strong> SEVENTEEN literally wrote this for moments like this — giving you permission to turn off your brain, rest, and forget your worries!",
+        lines: [
+          { kor: "쉼 없이 달렸던 날, 잠시 쉬어도 돼", rom: "Swim eopsi dallyeotdeon nal, jamsi swieodo dwae", eng: "You've been working so hard; it's okay to pause and rest today." },
+          { kor: "아무 생각 마, 오늘 하루는 그냥 쉬어도 돼", rom: "Amu saenggak ma, oneul haruneun geunyang swieodo dwae", eng: "Don't worry about anything at all, today is purely for resting." },
+          { kor: "수고했어, 넌 오늘도 최고였어 푹 자요 🌸", rom: "Sugohaesseo, neon oneuldo choegoyeosseo puk jayeo", eng: "You did so well. Sleep deeply, sweet dreams!" }
+        ],
+        melody: [
+          { f: 523.25, d: 0.38, bass: 174.61, lineIdx: 0 },
+          { f: 493.88, d: 0.35, bass: 174.61, lineIdx: 0 },
+          { f: 440.00, d: 0.35, bass: 220.00, lineIdx: 0 },
+          { f: 392.00, d: 0.50, bass: 196.00, lineIdx: 0 },
+          { f: 349.23, d: 0.32, bass: 174.61, lineIdx: 1 },
+          { f: 392.00, d: 0.32, bass: 196.00, lineIdx: 1 },
+          { f: 440.00, d: 0.35, bass: 220.00, lineIdx: 1 },
+          { f: 523.25, d: 0.55, bass: 261.63, lineIdx: 1 },
+          { f: 587.33, d: 0.35, bass: 146.83, lineIdx: 2 },
+          { f: 523.25, d: 0.35, bass: 174.61, lineIdx: 2 },
+          { f: 440.00, d: 0.40, bass: 220.00, lineIdx: 2 },
+          { f: 392.00, d: 0.70, bass: 196.00, lineIdx: 2 }
+        ]
+      },
+      {
+        title: "Darl+ing — SEVENTEEN",
+        badge: "Warm Acoustic Hug 🍯",
+        ytQuery: "SEVENTEEN+Darling+Music+Video",
+        tip: "💡 <strong>Why this helps you feel better:</strong> A warm, tender confession song wrapped in soft acoustic guitar vibes — feels like a warm forehead kiss.",
+        lines: [
+          { kor: "You know, without you I'm so lonely...", rom: "You know, without you I'm so lonely...", eng: "You know without you I feel so incomplete..." },
+          { kor: "When you're not here, 911 calling", rom: "When you're not here, 911 calling", eng: "I'm rushing right to your bedside with soup and hugs!" },
+          { kor: "Darling you, darling you, baby I love you ❤️", rom: "Darling you, darling you, baby I love you", eng: "Darling you, my whole world, I love you endlessly." }
+        ],
+        melody: [
+          { f: 440.00, d: 0.35, bass: 220.00, lineIdx: 0 },
+          { f: 392.00, d: 0.35, bass: 196.00, lineIdx: 0 },
+          { f: 329.63, d: 0.40, bass: 164.81, lineIdx: 0 },
+          { f: 392.00, d: 0.35, bass: 196.00, lineIdx: 1 },
+          { f: 440.00, d: 0.35, bass: 220.00, lineIdx: 1 },
+          { f: 523.25, d: 0.50, bass: 261.63, lineIdx: 1 },
+          { f: 493.88, d: 0.35, bass: 196.00, lineIdx: 2 },
+          { f: 440.00, d: 0.35, bass: 174.61, lineIdx: 2 },
+          { f: 392.00, d: 0.40, bass: 196.00, lineIdx: 2 },
+          { f: 523.25, d: 0.75, bass: 261.63, lineIdx: 2 }
+        ]
+      }
+    ];
+
+    let currentSvtTrack = 0;
+    let isSvtPlaying = false;
+    let svtMelodyTimeout = null;
+    let svtNoteIdx = 0;
+
+    const vinylDiscEl = document.getElementById('vinyl-disc-el');
+    const tonearmEl = document.getElementById('tonearm-el');
+    const vinylStatusLabel = document.getElementById('vinyl-status-label');
+    const vinylPulseDot = document.getElementById('vinyl-pulse-dot');
+    const svtPlayBtn = document.getElementById('svt-play-btn');
+    const svtPlayIcon = document.getElementById('svt-play-icon');
+    const svtPlayText = document.getElementById('svt-play-text');
+    const svtTrackBadge = document.getElementById('svt-track-badge');
+    const svtTrackTitle = document.getElementById('svt-track-title');
+    const svtLyricKorean = document.getElementById('svt-lyric-korean');
+    const svtLyricRoman = document.getElementById('svt-lyric-roman');
+    const svtLyricEnglish = document.getElementById('svt-lyric-english');
+    const svtTrackTip = document.getElementById('svt-track-tip');
+    const svtYtLink = document.getElementById('svt-yt-link');
+    const svtSongTabs = document.querySelectorAll('.svt-song-tab');
+    const caratCheerBtn = document.getElementById('carat-cheer-btn');
+
+    function selectSvtTrack(index) {
+      currentSvtTrack = index;
+      svtSongTabs.forEach((tab, i) => {
+        if (i === index) {
+          tab.classList.add('bg-rose-50/90', 'border-[#F7CAC9]', 'text-rose-800', 'shadow-sm');
+          tab.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+        } else {
+          tab.classList.remove('bg-rose-50/90', 'border-[#F7CAC9]', 'text-rose-800', 'shadow-sm');
+          tab.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+        }
+      });
+
+      const tr = svtTracks[index];
+      svtTrackBadge.textContent = tr.badge;
+      svtTrackTitle.textContent = tr.title;
+      svtTrackTip.innerHTML = tr.tip;
+      svtYtLink.href = 'https://www.youtube.com/results?search_query=' + tr.ytQuery;
+
+      svtLyricKorean.textContent = '"' + tr.lines[0].kor + '"';
+      svtLyricRoman.textContent = tr.lines[0].rom;
+      svtLyricEnglish.textContent = '"' + tr.lines[0].eng + '"';
+
+      if (isSvtPlaying) {
+        stopSvtMelody();
+        startSvtMelody();
+      }
+    }
+
+    svtSongTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const idx = parseInt(tab.getAttribute('data-track'), 10);
+        selectSvtTrack(idx);
+      });
+    });
+
+    document.getElementById('svt-prev-btn').addEventListener('click', () => {
+      const prev = (currentSvtTrack - 1 + svtTracks.length) % svtTracks.length;
+      selectSvtTrack(prev);
+    });
+
+    document.getElementById('svt-next-btn').addEventListener('click', () => {
+      const next = (currentSvtTrack + 1) % svtTracks.length;
+      selectSvtTrack(next);
+    });
+
+    svtPlayBtn.addEventListener('click', () => {
+      initAudio();
+      if (!isSvtPlaying) {
+        startSvtMelody();
+      } else {
+        stopSvtMelody();
+      }
+    });
+
+    function startSvtMelody() {
+      isSvtPlaying = true;
+      svtNoteIdx = 0;
+      svtPlayIcon.textContent = '⏸️';
+      svtPlayText.textContent = 'Pause Melody';
+      vinylDiscEl.classList.add('vinyl-spinning');
+      tonearmEl.classList.add('tonearm-playing');
+      vinylStatusLabel.textContent = 'Playing... 🎶';
+      vinylPulseDot.classList.replace('bg-gray-300', 'bg-emerald-400');
+      vinylPulseDot.classList.add('animate-ping');
+      playNextSvtNote();
+    }
+
+    function stopSvtMelody() {
+      isSvtPlaying = false;
+      if (svtMelodyTimeout) clearTimeout(svtMelodyTimeout);
+      svtMelodyTimeout = null;
+      svtPlayIcon.textContent = '▶️';
+      svtPlayText.textContent = 'Play Cozy Melody';
+      vinylDiscEl.classList.remove('vinyl-spinning');
+      tonearmEl.classList.remove('tonearm-playing');
+      vinylStatusLabel.textContent = 'Paused';
+      vinylPulseDot.classList.replace('bg-emerald-400', 'bg-gray-300');
+      vinylPulseDot.classList.remove('animate-ping');
+    }
+
+    function playNextSvtNote() {
+      if (!isSvtPlaying) return;
+      const tr = svtTracks[currentSvtTrack];
+      const melody = tr.melody;
+      const item = melody[svtNoteIdx];
+
+      // Update lyrics display according to line index
+      if (item.lineIdx !== undefined && tr.lines[item.lineIdx]) {
+        const line = tr.lines[item.lineIdx];
+        svtLyricKorean.textContent = '"' + line.kor + '"';
+        svtLyricRoman.textContent = line.rom;
+        svtLyricEnglish.textContent = '"' + line.eng + '"';
+      }
+
+      // Synthesize cute music box bell note + soft bass
+      try {
+        const now = audioCtx.currentTime;
+
+        // Lead Bell Oscillator (Sine + Triangle harmonic blend)
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gainLead = audioCtx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(item.f, now);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(item.f * 2, now); // Overtones for cute bell chime
+
+        gainLead.gain.setValueAtTime(0.09, now);
+        gainLead.gain.exponentialRampToValueAtTime(0.0001, now + item.d * 1.5);
+
+        osc1.connect(gainLead);
+        osc2.connect(gainLead);
+        gainLead.connect(masterGain);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + item.d * 1.6);
+        osc2.stop(now + item.d * 1.6);
+
+        // Soft Warm Bass Chime
+        if (item.bass) {
+          const oscBass = audioCtx.createOscillator();
+          const gainBass = audioCtx.createGain();
+          oscBass.type = 'sine';
+          oscBass.frequency.setValueAtTime(item.bass, now);
+          gainBass.gain.setValueAtTime(0.06, now);
+          gainBass.gain.exponentialRampToValueAtTime(0.0001, now + item.d * 1.8);
+
+          oscBass.connect(gainBass);
+          gainBass.connect(masterGain);
+
+          oscBass.start(now);
+          oscBass.stop(now + item.d * 1.9);
+        }
+      } catch (e) {
+        // Audio might be waiting on gesture
+      }
+
+      // Schedule next note
+      svtNoteIdx = (svtNoteIdx + 1) % melody.length;
+      const delay = (item.d * 1000) + 40; // slight gap between notes
+      svtMelodyTimeout = setTimeout(playNextSvtNote, delay);
+    }
+
+    // Carat Bong Cheering Button Interaction
+    caratCheerBtn.addEventListener('click', () => {
+      initAudio();
+      playCuteChime();
+      
+      // Diamond Confetti in SEVENTEEN's Official Colors: Rose Quartz & Serenity
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 50,
+          spread: 75,
+          origin: { x: 0.8, y: 0.4 },
+          colors: ['#F7CAC9', '#92A8D1', '#FFFFFF', '#FFB7B2', '#B5D8EB']
+        });
+      }
+
+      // Trigger Dr. Cuddle Bear reaction
+      triggerBearBounce('SEVENTEEN & Carat energy sent! Say the name, SEVENTEEN! 💎✨');
+    });
+
+
+    
+    /* ==========================================================
+       9C. CAREGIVER DATABASE & RECOVERY WINS LOGIC
+       ========================================================== */
+    let currentDbFilter = 'all';
+    let dbEntries = [];
+
+    // Initialize Database from localStorage or sample seeds
+    function initDatabase() {
+      try {
+        const saved = localStorage.getItem('cozy_corner_db');
+        if (saved) {
+          dbEntries = JSON.parse(saved);
+        } else {
+          // Pre-populate with cute default seed logs
+          dbEntries = [
+            {
+              id: Date.now() - 1000 * 60 * 35,
+              time: formatDbTime(new Date(Date.now() - 1000 * 60 * 35)),
+              category: 'reply',
+              title: 'Love Note from Her 💌',
+              detail: 'Thank you for making this cute space for me babe, Dr. Cuddle and the SEVENTEEN songs made me smile so much! ❤️',
+              status: 'fulfilled'
+            },
+            {
+              id: Date.now() - 1000 * 60 * 20,
+              time: formatDbTime(new Date(Date.now() - 1000 * 60 * 20)),
+              category: 'win',
+              title: 'Recovery Win ("Rep-Win") 🏆',
+              detail: 'Drank a big glass of warm lemon-honey water and took afternoon vitamins! 💧',
+              status: 'fulfilled'
+            },
+            {
+              id: Date.now() - 1000 * 60 * 5,
+              time: formatDbTime(new Date(Date.now() - 1000 * 60 * 5)),
+              category: 'coupon',
+              title: 'VIP Coupon Redeemed 🎟️',
+              detail: 'VIP Massage: 30 minutes of gentle head rubs & back scratches requested.',
+              status: 'new'
+            }
+          ];
+          saveDatabase();
+        }
+      } catch (err) {
+        console.warn('Database storage issue', err);
+        dbEntries = [];
+      }
+      renderDatabase();
+    }
+
+    function saveDatabase() {
+      try {
+        localStorage.setItem('cozy_corner_db', JSON.stringify(dbEntries));
+      } catch (e) {
+        console.warn(e);
+      }
+      renderDatabase();
+    }
+
+    function formatDbTime(date) {
+      const hours = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 || 12;
+      return `${formattedHours}:${minutes} ${ampm}`;
+    }
+
+    function addDbEntry(category, title, detail) {
+      const newEntry = {
+        id: Date.now() + Math.random(),
+        time: formatDbTime(new Date()),
+        category: category, // 'reply', 'win', 'coupon', 'mood', 'care'
+        title: title,
+        detail: detail,
+        status: 'new'
+      };
+      dbEntries.unshift(newEntry);
+      saveDatabase();
+    }
+
+    // Category styling helper
+    function getCategoryStyle(cat) {
+      switch (cat) {
+        case 'reply':
+          return { badge: 'bg-purple-100 text-purple-700 border-purple-200', icon: '💌', name: 'Reply Note' };
+        case 'win':
+          return { badge: 'bg-emerald-100 text-emerald-800 border-emerald-200', icon: '🏆', name: 'Recovery Win' };
+        case 'coupon':
+          return { badge: 'bg-amber-100 text-amber-800 border-amber-200', icon: '🎟️', name: 'Coupon Claim' };
+        case 'mood':
+          return { badge: 'bg-blue-100 text-blue-800 border-blue-200', icon: '🩺', name: 'Mood Vitals' };
+        case 'care':
+          return { badge: 'bg-pink-100 text-pink-700 border-pink-200', icon: '🫂', name: 'Comfort Care' };
+        default:
+          return { badge: 'bg-gray-100 text-gray-700 border-gray-200', icon: '📝', name: 'Log' };
+      }
+    }
+
+    function renderDatabase() {
+      // 1. Update Stats Counters
+      const totalCount = dbEntries.length;
+      const winsCount = dbEntries.filter(e => e.category === 'win').length;
+      const repliesCount = dbEntries.filter(e => e.category === 'reply').length;
+      const couponsCount = dbEntries.filter(e => e.category === 'coupon').length;
+      const moodsCount = dbEntries.filter(e => e.category === 'mood').length;
+      const caresCount = dbEntries.filter(e => e.category === 'care').length;
+
+      document.getElementById('db-stat-total').textContent = totalCount;
+      document.getElementById('db-stat-wins').textContent = winsCount;
+      document.getElementById('db-stat-replies').textContent = repliesCount;
+      document.getElementById('db-stat-coupons').textContent = couponsCount;
+
+      // Update badge in header
+      const newCount = dbEntries.filter(e => e.status === 'new').length;
+      const badgeCountEl = document.getElementById('db-badge-count');
+      badgeCountEl.textContent = totalCount;
+      if (newCount > 0) {
+        badgeCountEl.classList.add('animate-pulse');
+      } else {
+        badgeCountEl.classList.remove('animate-pulse');
+      }
+
+      // Update filter button counts
+      document.getElementById('count-filter-all').textContent = totalCount;
+      document.getElementById('count-filter-reply').textContent = repliesCount;
+      document.getElementById('count-filter-win').textContent = winsCount;
+      document.getElementById('count-filter-coupon').textContent = couponsCount;
+      document.getElementById('count-filter-mood').textContent = moodsCount;
+      document.getElementById('count-filter-care').textContent = caresCount;
+
+      // 2. Filter Entries
+      const filtered = currentDbFilter === 'all' 
+        ? dbEntries 
+        : dbEntries.filter(e => e.category === currentDbFilter);
+
+      // 3. Render Entries List
+      const container = document.getElementById('db-log-container');
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center bg-gray-50/80 rounded-2xl border border-dashed border-gray-200">
+            <span class="text-3xl block mb-1">📋</span>
+            <p class="font-cute text-sm font-bold text-gray-600">No database entries in this category yet</p>
+            <p class="text-xs text-gray-400 mt-1">Interactions on the website and her replies will automatically show up here!</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((item) => {
+        const catStyle = getCategoryStyle(item.category);
+        const isFulfilled = item.status === 'fulfilled';
+
+        const row = document.createElement('div');
+        row.className = `p-4 rounded-2xl border transition-all ${
+          isFulfilled ? 'bg-white/80 border-gray-100 opacity-90' : 'bg-white border-pink-200 shadow-sm'
+        } flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3`;
+
+        row.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="p-2.5 rounded-xl border ${catStyle.badge} text-lg shadow-xs flex-shrink-0">
+              ${catStyle.icon}
+            </span>
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-cute text-sm font-bold text-gray-800">${item.title}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full border ${catStyle.badge} font-bold uppercase">
+                  ${catStyle.name}
+                </span>
+                <span class="text-[11px] text-gray-400 font-medium">🕒 ${item.time}</span>
+              </div>
+              <p class="text-xs text-gray-700 font-medium leading-relaxed">${item.detail}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+            <button class="toggle-fulfill-btn px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ${
+              isFulfilled 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-300' 
+                : 'bg-rose-50 text-rose-600 border-rose-300 hover:bg-rose-100'
+            }" data-id="${item.id}">
+              ${isFulfilled ? '✅ Handled' : '⏳ Mark Fulfilled'}
+            </button>
+            <button class="delete-db-entry-btn text-gray-300 hover:text-red-500 p-1 text-xs" data-id="${item.id}" title="Delete entry">
+              ✕
+            </button>
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+
+      // Attach button listeners to dynamic rows
+      container.querySelectorAll('.toggle-fulfill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseFloat(btn.getAttribute('data-id'));
+          const entry = dbEntries.find(e => e.id === id);
+          if (entry) {
+            entry.status = entry.status === 'fulfilled' ? 'new' : 'fulfilled';
+            saveDatabase();
+            playCuteChime();
+          }
+        });
+      });
+
+      container.querySelectorAll('.delete-db-entry-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseFloat(btn.getAttribute('data-id'));
+          dbEntries = dbEntries.filter(e => e.id !== id);
+          saveDatabase();
+        });
+      });
+    }
+
+    // Filter Buttons Listener
+    document.querySelectorAll('.db-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.db-filter-btn').forEach(b => {
+          b.classList.remove('bg-pink-100', 'text-pink-700', 'selected');
+          b.classList.add('bg-gray-100', 'text-gray-600');
+        });
+        btn.classList.add('bg-pink-100', 'text-pink-700', 'selected');
+        btn.classList.remove('bg-gray-100', 'text-gray-600');
+        currentDbFilter = btn.getAttribute('data-filter');
+        renderDatabase();
+      });
+    });
+
+    // Girlfriend's Reply Form Logic
+    let selectedReplyStatus = 'Resting bundled up 💤';
+    document.querySelectorAll('.reply-status-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        document.querySelectorAll('.reply-status-tag').forEach(t => {
+          t.classList.remove('bg-pink-50', 'text-pink-700', 'border-pink-200');
+          t.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+        });
+        tag.classList.add('bg-pink-50', 'text-pink-700', 'border-pink-200');
+        tag.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+        selectedReplyStatus = tag.getAttribute('data-status');
+      });
+    });
+
+    document.getElementById('submit-reply-btn').addEventListener('click', () => {
+      const msgInput = document.getElementById('reply-message-input');
+      const message = msgInput.value.trim();
+
+      // Collect checked recovery wins
+      const wins = [];
+      if (document.getElementById('win-water').checked) wins.push('Drank warm water 💧');
+      if (document.getElementById('win-meds').checked) wins.push('Took medicine 💊');
+      if (document.getElementById('win-soup').checked) wins.push('Ate warm soup 🍲');
+      if (document.getElementById('win-nap').checked) wins.push('Took a nap 🛌');
+      if (document.getElementById('win-smile').checked) wins.push('Smiled at Dr. Cuddle / SEVENTEEN 🧸');
+
+      if (!message && wins.length === 0) {
+        const toast = document.getElementById('reply-success-toast');
+        toast.textContent = 'Please check at least one recovery win or type a quick note first! 🌸';
+        toast.classList.remove('hidden', 'text-emerald-600');
+        toast.classList.add('text-rose-500');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('text-rose-500');
+          toast.classList.add('text-emerald-600');
+        }, 3000);
+        return;
+      }
+
+      // 1. Log Recovery Wins if any checked
+      if (wins.length > 0) {
+        addDbEntry('win', 'Daily Recovery Wins ("Rep-Wins")', wins.join(' • '));
+      }
+
+      // 2. Log Message Note if provided
+      if (message) {
+        addDbEntry('reply', `Note from ${state.girlfriendName}`, `[Status: ${selectedReplyStatus}] "${message}"`);
+      }
+
+      // Feedback
+      playCuteChime();
+      fireConfetti(0.5, 0.7);
+
+      const toast = document.getElementById('reply-success-toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+
+      // Reset form
+      msgInput.value = '';
+      document.querySelectorAll('.rep-win-check').forEach(c => c.checked = false);
+
+      // Scroll smoothly to database dashboard to see logged entry
+      document.getElementById('database-dashboard-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Quick Jump button in Header
+    document.getElementById('view-db-btn').addEventListener('click', () => {
+      document.getElementById('database-dashboard-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Copy Summary for Text / WhatsApp
+    document.getElementById('db-copy-summary-btn').addEventListener('click', () => {
+      const winsCount = dbEntries.filter(e => e.category === 'win').length;
+      const replies = dbEntries.filter(e => e.category === 'reply');
+      const latestReply = replies.length > 0 ? replies[0].detail : 'No direct notes yet.';
+
+      const summary = `💖 COZY CORNER RECOVERY REPORT for ${state.girlfriendName}
+📅 Logged: ${new Date().toLocaleDateString()}
+🏆 Total Recovery Wins: ${winsCount}
+💌 Latest Note: ${latestReply}
+📊 Total Database Entries: ${dbEntries.length}`;
+
+      try {
+        navigator.clipboard.writeText(summary).then(() => {
+          const btn = document.getElementById('db-copy-summary-btn');
+          btn.innerHTML = '<span>✅</span> Copied Summary!';
+          setTimeout(() => { btn.innerHTML = '<span>📋</span> Copy Summary'; }, 2500);
+        });
+      } catch (e) {
+        const dummy = document.createElement('textarea');
+        dummy.value = summary;
+        document.body.appendChild(dummy);
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        const btn = document.getElementById('db-copy-summary-btn');
+        btn.innerHTML = '<span>✅</span> Copied Summary!';
+        setTimeout(() => { btn.innerHTML = '<span>📋</span> Copy Summary'; }, 2500);
+      }
+    });
+
+    // Export Database as JSON
+    document.getElementById('db-export-json-btn').addEventListener('click', () => {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dbEntries, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', 'recovery_database.json');
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
+
+    // Add Sample Entry (Test Data)
+    document.getElementById('db-add-sample-btn').addEventListener('click', () => {
+      addDbEntry('reply', `Quick Note from ${state.girlfriendName}`, '"Feeling a little sleepy now, turning on SEVENTEEN Healing and taking a cozy nap. Thank you babe ❤️"');
+      playCuteChime();
+    });
+
+    // Clear All Entries
+    document.getElementById('db-clear-all-btn').addEventListener('click', () => {
+      dbEntries = [];
+      saveDatabase();
+    });
+
+    // Initialize database on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initDatabase();
+    });
+
+
+    /* ==========================================================
+       10. CANVASES & CONFETTI HELPER
+       ========================================================== */
+    function fireConfetti(originX, originY) {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 40,
+          spread: 60,
+          origin: { x: originX || 0.5, y: originY || 0.5 },
+          colors: ['#f43f5e', '#ec4899', '#f472b6', '#fed7aa', '#c084fc']
+        });
+      }
+    }
+  </script>
+</body>
+</html>
