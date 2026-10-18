@@ -470,7 +470,7 @@
             <div>
               <p class="text-xs uppercase tracking-widest text-pink-400 font-bold">Care Dispatch #001</p>
               <h3 class="font-handwriting text-2xl sm:text-3xl text-pink-700 font-bold">
-                Dearest <span id="letter-recipient-name">Sweetheart</span>,
+                Cutie
               </h3>
             </div>
             <div class="text-right">
@@ -482,16 +482,10 @@
           <!-- Letter Body Content -->
           <div class="space-y-4 font-handwriting text-lg sm:text-xl text-gray-700 leading-relaxed" id="letter-body-text">
             <p>
-              I wish more than anything that I had a magic wand to zap away your headache, chills, sniffles, and tiredness right this second. Since I can't wave a wand, I built this cozy space to wrap you in love.
+              Meri cutie, jaldi se theek ho jao na 🥺❤️ I know I’m not there with you right now, but meri taraf se bohot saare tight hugs, forehead kisses, aur dher saara pyaar tumhare liye. 🫂❤️ Bas aaram karo aur apna dhyaan rakho. Theek ho jao jaldi, phir tumhara favourite food order karunga, woh bhi toh khana hai naaa? 🥹
             </p>
             <p>
-              Please take this as your official permission slip: <strong>you don't have to be productive today.</strong> The world can wait. Your only job right now is curling into your softest blankets, sipping warm liquids, and letting your wonderful body heal.
-            </p>
-            <p>
-              Whenever you're ready, I am on standby for hot soup deliveries, tucking you in, quiet movie marathons, forehead kisses, or just sitting silently beside you while you nap. 
-            </p>
-            <p>
-              You are the strongest, sweetest, and most gorgeous person in my entire world — even when your nose is red and your hair is a wild bed-head mess. I love you endlessly.
+              Aur phir mujhse baat kaun karega agar tum hi beemar pad jaogi? 😭❤️ I wish I could be there to hold you close and take care of you. I love you endlessly, meri cutie. Get well soon, my baby. 🫶🏻💗
             </p>
           </div>
 
@@ -1204,7 +1198,7 @@
     const state = {
       girlfriendName: 'My Sweetest Girl',
       boyfriendName: 'The Monkey 🐒',
-      letterBody: `I wish more than anything that I had a magic wand to zap away your headache, chills, sniffles, and tiredness right this second. Since I can't wave a wand, I built this cozy space to wrap you in love.\n\nPlease take this as your official permission slip: you don't have to be productive today. The world can wait. Your only job right now is curling into your softest blankets, sipping warm liquids, and letting your wonderful body heal.\n\nWhenever you're ready, I am on standby for hot soup deliveries, tucking you in, quiet movie marathons, forehead kisses, or just sitting silently beside you while you nap.\n\nYou are the strongest, sweetest, and most gorgeous person in my entire world — even when your nose is red and your hair is a wild bed-head mess. I love you endlessly.`,
+      letterBody: `Meri cutie, jaldi se theek ho jao na 🥺❤️ I know I’m not there with you right now, but meri taraf se bohot saare tight hugs, forehead kisses, aur dher saara pyaar tumhare liye. 🫂❤️ Bas aaram karo aur apna dhyaan rakho. Theek ho jao jaldi, phir tumhara favourite food order karunga, woh bhi toh khana hai naaa? 🥹\n\nAur phir mujhse baat kaun karega agar tum hi beemar pad jaogi? 😭❤️ I wish I could be there to hold you close and take care of you. I love you endlessly, meri cutie. Get well soon, my baby. 🫶🏻💗`,
       lovePercent: 1000,
       isLetterOpen: false,
       hasBlanket: false,
@@ -1227,7 +1221,6 @@
     function updateDOMText() {
       document.getElementById('display-girlfriend-name').textContent = state.girlfriendName;
       document.getElementById('envelope-to-name').textContent = state.girlfriendName;
-      document.getElementById('letter-recipient-name').textContent = state.girlfriendName;
       document.getElementById('letter-sender-name').textContent = state.boyfriendName;
       
       // Update letter body
@@ -1632,7 +1625,7 @@
     });
 
     btnCopyLetter.addEventListener('click', () => {
-      const fullText = `Dearest ${state.girlfriendName},\n\n${state.letterBody}\n\n${state.boyfriendName}`;
+      const fullText = `Cutie\n\n${state.letterBody}\n\n${state.boyfriendName}`;
       try {
         navigator.clipboard.writeText(fullText).then(() => {
           btnCopyLetter.textContent = '✅ Copied!';
